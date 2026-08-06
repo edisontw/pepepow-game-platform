@@ -54,9 +54,11 @@ Runner v0.3 currently includes:
 - Pulse, spread, and rapid weapon behavior
 - Firepower and shield pickups
 - Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemies
-- Moving mini-boss with three-way projectile attacks\n- Larger fixed-position final boss required for stage clear
+- Moving mini-boss with three-way projectile attacks
+- Larger fixed-position final boss required for stage clear
 - Hit and pickup particle feedback
-- Three real lives with shield-first damage and brief hit invulnerability\n- Score and local high score
+- Three real lives with shield-first damage and brief hit invulnerability
+- Score and local high score
 - Mobile-friendly controls with fullscreen toggle and automatic best-fit fullscreen on run start
 
 The immediate focus remains gameplay tuning, effects, balance, mobile testing, and replay value.
