@@ -8,15 +8,16 @@ This roadmap intentionally keeps gameplay ahead of blockchain integration.
 
 - [x] Basic auto-shooting prototype
 - [x] Left-right / drag controls
-- [x] Enemy and tougher-enemy variants
-- [x] Firepower pickup
 - [x] Health, score, and local high score
 - [x] Boss and stage victory
-- [ ] Move the playable source into this repository
-- [ ] Add weapon variety
-- [ ] Add enemy and boss attack patterns
-- [ ] Improve effects, feedback, pacing, and balance
+- [x] Move the playable source into this repository
+- [x] Add pulse, spread, and rapid weapon variety
+- [x] Add drone, tank, and zigzag enemy patterns
+- [x] Add boss projectile attacks
+- [x] Add shield pickups and hit / pickup effects
+- [ ] Tune difficulty, drop rates, and weapon balance
 - [ ] Test on common mobile screen sizes
+- [ ] Add audio and stronger game-feel feedback
 
 ## Phase 2 - Reusable game platform
 
@@ -47,11 +48,11 @@ Core games must continue to work when blockchain services are unavailable.
 
 **Goal:** let community developers clone, run, modify, and deploy the platform easily.
 
-- [ ] Stable install and development commands
-- [ ] Document configuration
+- [x] First game can run as static files with no build step
+- [ ] Document platform configuration
 - [ ] Provide example environment variables without secrets
 - [ ] Add automated checks
-- [ ] Document static/self-host deployment
+- [ ] Document platform-level deployment
 - [ ] Publish the first stable release
 
 ## Principles
