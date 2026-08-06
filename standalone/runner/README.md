@@ -7,7 +7,7 @@ The Runner is the first playable game prototype for PEPEPOW Game Platform.
 No build step, wallet, node, or backend is required.
 
 1. Download or clone this repository.
-2. Open `games/runner/index.html` in a modern browser.
+2. Open `standalone/runner/index.html` in a modern browser.
 3. Play with `Left / Right` or `A / D` on desktop, or drag on a phone.
 
 Any static web server can host this folder as-is.

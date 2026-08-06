@@ -62,11 +62,11 @@ export default function PlantDefenseGame() {
     const timer = window.setInterval(() => {
       setGame(previous => {
         if (previous.status !== "playing") return previous;
-        let next: GameState = { ...previous, tick: previous.tick + 1 };
+        const next: GameState = { ...previous, tick: previous.tick + 1 };
         let units = previous.units.map(unit => ({ ...unit }));
         let enemies = previous.enemies.map(enemy => ({ ...enemy }));
         let projectiles = previous.projectiles.map(projectile => ({ ...projectile }));
-        let hits = previous.hits.map(hit => ({ ...hit, ttl: hit.ttl - 1 })).filter(hit => hit.ttl > 0);
+        const hits = previous.hits.map(hit => ({ ...hit, ttl: hit.ttl - 1 })).filter(hit => hit.ttl > 0);
         let energy = previous.energy;
         let score = previous.score;
         let core = previous.core;

@@ -1,9 +1,9 @@
-import RunnerGame from "./RunnerGame";
-import PetMatchingGame from "./PetMatchingGame";
-import PlantDefenseGame from "./PlantDefenseGame";
-import IdlePetMiningGame from "./IdlePetMiningGame";
-import ExplorationGame from "./ExplorationGame";
-import CardBattlerGame from "./CardBattlerGame";
+import RunnerGame from "@/games/runner/RunnerGame";
+import PetMatchingGame from "@/games/pet-matching/PetMatchingGame";
+import PlantDefenseGame from "@/games/plant-defense/PlantDefenseGame";
+import IdlePetMiningGame from "@/games/idle-pet-mining/IdlePetMiningGame";
+import ExplorationGame from "@/games/blockscape-3d/ExplorationGame";
+import CardBattlerGame from "@/games/node-tactics/CardBattlerGame";
 
 const Arrow = () => <span aria-hidden="true">↗</span>;
 

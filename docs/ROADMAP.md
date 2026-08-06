@@ -2,7 +2,7 @@
 
 This roadmap intentionally keeps gameplay ahead of blockchain integration.
 
-## Phase 1 - Runner prototype
+## Phase 1 - Playable prototypes
 
 **Goal:** prove that the first game is fun on mobile and desktop.
 
@@ -19,6 +19,7 @@ This roadmap intentionally keeps gameplay ahead of blockchain integration.
 - [x] Add shield pickups and hit / pickup effects
 - [x] Verify three-life damage, shield absorption, hit invulnerability, and game-over flow
 - [x] Add fullscreen toggle and mobile best-fit fullscreen at run start
+- [x] Ship six playable game prototypes
 - [ ] Tune difficulty, drop rates, and weapon balance
 - [ ] Test on common mobile screen sizes
 - [ ] Add audio and stronger game-feel feedback
@@ -27,13 +28,13 @@ This roadmap intentionally keeps gameplay ahead of blockchain integration.
 
 **Goal:** make it easy to add more small games without coupling them to PEPEPOW.
 
-- [ ] Define a small game registration / launcher interface
-- [ ] Extract only genuinely shared UI and assets
-- [ ] Keep games independently runnable
+- [x] Define a game registry
+- [x] Separate each game into its own feature folder
+- [x] Separate game code from server/database/blockchain infrastructure
+- [x] Keep the standalone Runner independently runnable
 - [ ] Add local settings and accessibility controls
-- [ ] Establish a simple score/result interface
-
-Candidate future games include pet matching, lane defense, casual exploration, idle/collection, card, and tactical concepts.
+- [ ] Establish a shared score/result submission contract
+- [ ] Add common game-shell/fullscreen controls where reuse is proven
 
 ## Phase 3 - Optional PEPEPOW layer
 
@@ -41,7 +42,8 @@ Candidate future games include pet matching, lane defense, casual exploration, i
 
 - [ ] Wallet-address support without custody
 - [ ] Local signature-based authentication if needed
-- [ ] Payment verification through PEPEPOW infrastructure
+- [x] Add swappable Light API / local wallet RPC provider boundary
+- [ ] Implement persisted payment intents and confirmation policy
 - [ ] Optional challenge / tournament entry
 - [ ] Community prize pools and rewards
 - [ ] Cosmetic or special-event unlocks
@@ -54,7 +56,8 @@ Core games must continue to work when blockchain services are unavailable.
 
 - [x] First game can run as static files with no build step
 - [ ] Document platform configuration
-- [ ] Provide example environment variables without secrets
+- [x] Provide example environment variables without secrets
+- [x] Document provider and persistence architecture
 - [ ] Add automated checks
 - [ ] Document platform-level deployment
 - [ ] Publish the first stable release

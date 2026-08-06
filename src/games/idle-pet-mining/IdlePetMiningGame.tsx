@@ -36,29 +36,35 @@ export default function IdlePetMiningGame() {
   const shellRef = useRef<HTMLDivElement>(null);
   const [game, setGame] = useState<GameState>(initialState);
   const [hydrated, setHydrated] = useState(false);
+  const [clock, setClock] = useState(0);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(SAVE_KEY);
-      if (!raw) {
-        setHydrated(true);
-        return;
+    const timer = window.setTimeout(() => {
+      try {
+        const raw = window.localStorage.getItem(SAVE_KEY);
+        if (!raw) {
+          setHydrated(true);
+          return;
+        }
+        const saved = JSON.parse(raw) as Partial<GameState> & { savedAt?: number };
+        const restored: GameState = { ...initialState, ...saved };
+        const now = Date.now();
+        const awaySeconds = Math.min(7200, Math.max(0, Math.floor((now - (saved.savedAt || now)) / 1000)));
+        const offlineGain = awaySeconds * rigRate(restored.rigLevel);
+        setGame({
+          ...restored,
+          hash: restored.hash + offlineGain,
+          mined: restored.mined + offlineGain,
+          mood: Math.max(0, restored.mood - awaySeconds * 0.006),
+          message: offlineGain >= 10 ? `Welcome back — the rig mined ${offlineGain} HASH while you were away.` : restored.message,
+        });
+        setClock(now);
+      } catch {
+        window.localStorage.removeItem(SAVE_KEY);
       }
-      const saved = JSON.parse(raw) as Partial<GameState> & { savedAt?: number };
-      const restored: GameState = { ...initialState, ...saved };
-      const awaySeconds = Math.min(7200, Math.max(0, Math.floor((Date.now() - (saved.savedAt || Date.now())) / 1000)));
-      const offlineGain = awaySeconds * rigRate(restored.rigLevel);
-      setGame({
-        ...restored,
-        hash: restored.hash + offlineGain,
-        mined: restored.mined + offlineGain,
-        mood: Math.max(0, restored.mood - awaySeconds * 0.006),
-        message: offlineGain >= 10 ? `Welcome back — the rig mined ${offlineGain} HASH while you were away.` : restored.message,
-      });
-    } catch {
-      window.localStorage.removeItem(SAVE_KEY);
-    }
-    setHydrated(true);
+      setHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -69,6 +75,7 @@ export default function IdlePetMiningGame() {
   useEffect(() => {
     if (!hydrated) return;
     const timer = window.setInterval(() => {
+      setClock(Date.now());
       setGame(current => {
         const rate = rigRate(current.rigLevel);
         let next = { ...current, hash: current.hash + rate, mined: current.mined + rate, mood: Math.max(0, current.mood - 0.08) };
@@ -126,6 +133,7 @@ export default function IdlePetMiningGame() {
   };
 
   const expedition = () => {
+    setClock(Date.now());
     setGame(current => {
       if (current.expeditionUntil > 0) return { ...current, message: "Hash Hopper is already exploring." };
       if (petLevel(current.petXp) < 2 || current.rigLevel < 2) return { ...current, message: "Expedition unlocks at PET LV 2 + RIG LV 2." };
@@ -143,7 +151,7 @@ export default function IdlePetMiningGame() {
   const level = petLevel(game.petXp);
   const rate = rigRate(game.rigLevel);
   const nextXp = level * 60;
-  const expeditionSeconds = game.expeditionUntil > 0 ? Math.max(1, Math.ceil((game.expeditionUntil - Date.now()) / 1000)) : 0;
+  const expeditionSeconds = game.expeditionUntil > 0 ? Math.max(1, Math.ceil((game.expeditionUntil - clock) / 1000)) : 0;
 
   return (
     <div className="idle-shell" ref={shellRef} id="idle-pet-mining">

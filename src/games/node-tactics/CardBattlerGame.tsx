@@ -308,7 +308,10 @@ export default function CardBattlerGame() {
   };
 
   useEffect(() => {
-    setBest(Number(window.localStorage.getItem("pepepow-card-best") || 0));
+    const timer = window.setTimeout(() => {
+      setBest(Number(window.localStorage.getItem("pepepow-card-best") || 0));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const hpPct = useMemo(() => Math.max(0, (hp / maxHp) * 100), [hp, maxHp]);
