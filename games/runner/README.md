@@ -19,10 +19,12 @@ Any static web server can host this folder as-is.
 - Firepower level upgrades
 - Shield pickups
 - Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemy patterns
-- Moving mini-boss with three-way projectile attacks\n- Larger fixed-position final boss that must be defeated to clear the stage
+- Moving mini-boss with three-way projectile attacks
+- Larger fixed-position final boss that must be defeated to clear the stage
 - Hit, destruction, and pickup particle feedback
 - Three real lives, shield-first damage, brief hit invulnerability, score, and device-local high score
-- Mobile drag controls and desktop keyboard controls\n- Fullscreen toggle plus automatic best-fit fullscreen on mobile at run start
+- Mobile drag controls and desktop keyboard controls
+- Fullscreen toggle plus automatic best-fit fullscreen on mobile at run start
 - Single-stage victory state
 
 The hosted platform remains available at https://pepepow-game-platform.edisonhuang.chatgpt.site.
