@@ -8,15 +8,13 @@ The project starts with small, replayable games that work well on mobile browser
 
 ## Current status
 
-**Early development / v0.1**
+**Early development / Runner v0.2**
 
-The first playable concept is an **Auto-Shooting Runner**: move left and right, automatically shoot enemies, collect firepower upgrades, and defeat a boss at the end of a short run.
+The first playable game is an **Auto-Shooting Runner**: move left and right, automatically shoot enemies, collect weapon upgrades, survive several enemy patterns, and defeat a projectile-firing boss.
 
-A live prototype is currently available at:
-
-**https://pepepow-game-platform.edisonhuang.chatgpt.site**
-
-The source version of the Runner will be moved into this repository as the next development step.
+- Source: [games/runner](games/runner)
+- Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site
+- No wallet, node, backend, or build step is required for the Runner.
 
 ## Design goals
 
@@ -30,13 +28,15 @@ The source version of the Runner will be moved into this repository as the next 
 - Keep private keys and seed phrases out of the game platform
 - Keep core gameplay independent from blockchain services
 
-## Planned repository structure
+## Repository structure
 
 ```text
 pepepow-game-platform/
 ├── games/
 │   └── runner/
-├── shared/
+│       ├── index.html
+│       ├── style.css
+│       └── game.js
 ├── docs/
 ├── README.md
 ├── LICENSE
@@ -47,18 +47,19 @@ Each game should remain as independent as practical. Shared PEPEPOW or platform 
 
 ## First game: Auto-Shooting Runner
 
-Planned gameplay direction:
+Runner v0.2 currently includes:
 
 - Automatic shooting
 - Drag / left-right movement
-- Enemy waves and tougher enemy types
-- Weapon and firepower upgrades
-- Short stage progression
-- Boss encounter
+- Pulse, spread, and rapid weapon behavior
+- Firepower and shield pickups
+- Drone, tank, and zigzag enemies
+- Boss movement and three-way projectile attacks
+- Hit and pickup particle feedback
 - Score and local high score
 - Mobile-friendly controls
 
-The prototype comes first. Weapon variety, enemy patterns, effects, balance, and replay value should be improved before cryptocurrency features become a focus.
+The immediate focus remains gameplay tuning, effects, balance, mobile testing, and replay value.
 
 ## PEPEPOW integration
 
@@ -88,7 +89,7 @@ The immediate priority is to make the Runner genuinely fun, then establish a reu
 
 ## Contributing
 
-The project is still at an early prototype stage. Issues, gameplay ideas, testing feedback, and code contributions will be welcome as the source version becomes available.
+The project is in active prototype development. Issues, gameplay ideas, testing feedback, and code contributions are welcome.
 
 ## License
 
