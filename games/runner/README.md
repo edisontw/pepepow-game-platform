@@ -12,17 +12,17 @@ No build step, wallet, node, or backend is required.
 
 Any static web server can host this folder as-is.
 
-## v0.2 gameplay
+## v0.3 gameplay
 
 - Automatic shooting
 - `PULSE`, `SPREAD`, and `RAPID` weapon behavior
 - Firepower level upgrades
 - Shield pickups
-- Drone, tank, and zigzag enemy patterns
-- Boss movement and three-way projectile attacks
+- Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemy patterns
+- Moving mini-boss with three-way projectile attacks\n- Larger fixed-position final boss that must be defeated to clear the stage
 - Hit, destruction, and pickup particle feedback
-- Health, score, and device-local high score
-- Mobile drag controls and desktop keyboard controls
+- Three real lives, shield-first damage, brief hit invulnerability, score, and device-local high score
+- Mobile drag controls and desktop keyboard controls\n- Fullscreen toggle plus automatic best-fit fullscreen on mobile at run start
 - Single-stage victory state
 
 The hosted platform remains available at https://pepepow-game-platform.edisonhuang.chatgpt.site.
@@ -34,7 +34,7 @@ The hosted platform remains available at https://pepepow-game-platform.edisonhua
 3. Destroy enemies and dodge pressure.
 4. Pick up power, weapon, or shield drops.
 5. Survive the escalating wave.
-6. Defeat the boss and beat your best score.
+6. Defeat the mini-boss, survive the next wave, then destroy the final boss to clear the stage.
 
 ## Blockchain boundary
 
