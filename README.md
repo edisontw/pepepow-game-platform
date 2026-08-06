@@ -1,81 +1,70 @@
 # PEPEPOW Game Platform
 
-An open-source browser game platform for the PEPEPOW ecosystem.
+An open-source, mobile-first browser game platform for the PEPEPOW ecosystem.
 
 > **Play first, chain later.**
 
-The project starts with small, replayable games that work well on mobile browsers. PEPEPOW integration is optional and should add value to the game rather than become a requirement to play.
+## Current status — 6 playable games
 
-## Current status
+The platform now contains six playable prototypes:
 
-**Early development / Runner v0.3**
+1. **Auto-Shooting Runner v0.3** — auto-fire runner with upgrades, soldiers, mini-boss and final boss.
+2. **Pet Matching** — fast tile-link matching with combos, hints, reshuffles and local high score.
+3. **Plant Defense v0.3** — lane defense with miners, upgradeable defenders, visible projectiles, bosses and endless progression.
+4. **Idle Pet & Mining** — raise a Hash Hopper, mine HASH, upgrade the rig and unlock expeditions.
+5. **BLOCKSCAPE 3D** — lightweight first-person maze exploration with five relics and a Node Gate objective.
+6. **NODE TACTICS v0.2** — short tactical card runs with visible enemy intent, route choices, upgrades and Overclock difficulty.
 
-The first playable game is an **Auto-Shooting Runner**: move left and right, automatically shoot enemies, collect weapon upgrades, survive armed enemies, defeat a moving mini-boss, and destroy a larger fixed-position final boss.
+Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site/
 
-- Source: [games/runner](games/runner)
-- Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site
-- No wallet, node, backend, or build step is required for the Runner.
+## Run locally
 
-## Design goals
+Requirements: Node.js 20.9 or newer.
 
-- Fun and understandable before adding cryptocurrency features
-- Mobile-first browser gameplay
-- Short sessions, roughly 1-10 minutes
-- Low server requirements
-- Playable without an account or payment
-- Optional PEPEPOW features
-- Avoid pay-to-win mechanics
-- Keep private keys and seed phrases out of the game platform
-- Keep core gameplay independent from blockchain services
+```bash
+git clone https://github.com/edisontw/pepepow-game-platform.git
+cd pepepow-game-platform
+npm install
+npm run dev
+```
+
+Open http://localhost:3000.
+
+For a production build:
+
+```bash
+npm run build
+npm start
+```
+
+The original Runner is also kept as a standalone static game under `games/runner/` and can be opened or hosted without a build step.
 
 ## Repository structure
 
 ```text
 pepepow-game-platform/
-├── games/
-│   └── runner/
-│       ├── index.html
-│       ├── style.css
-│       └── game.js
+├── app/                 # Platform UI + games 02-06
+├── public/runner/       # Runner used by the platform
+├── games/runner/        # Standalone Runner build
 ├── docs/
-├── README.md
-├── LICENSE
-└── .gitignore
+├── package.json
+└── README.md
 ```
 
-Each game should remain as independent as practical. Shared PEPEPOW or platform features can be added separately so a game can still run without a wallet, node, or ElectrumX service.
+## Design goals
 
-## First game: Auto-Shooting Runner
-
-Runner v0.3 currently includes:
-
-- Automatic shooting
-- Drag / left-right movement
-- Pulse, spread, and rapid weapon behavior
-- Firepower and shield pickups
-- Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemies
-- Moving mini-boss with three-way projectile attacks
-- Larger fixed-position final boss required for stage clear
-- Hit and pickup particle feedback
-- Three real lives with shield-first damage and brief hit invulnerability
-- Score and local high score
-- Mobile-friendly controls with fullscreen toggle and automatic best-fit fullscreen on run start
-
-The immediate focus remains gameplay tuning, effects, balance, mobile testing, and replay value.
+- Fun and understandable before cryptocurrency features
+- Mobile-first browser gameplay
+- Short, replayable sessions
+- Low server requirements
+- Playable without an account or payment
+- Optional PEPEPOW features only where they add value
+- No pay-to-win mechanics
+- Keep core gameplay independent from blockchain services
 
 ## PEPEPOW integration
 
-Potential later integrations include:
-
-- Optional challenge or tournament entry
-- Community-funded prize pools
-- Weekly high-score rewards
-- Cosmetic unlocks
-- Special event stages
-- Player tips
-- Payment verification using existing PEPEPOW infrastructure
-
-Early versions may use normal wallet transfers and blockchain verification rather than complex smart-contract-style systems.
+Possible later integrations include challenge or tournament entry, community-funded prize pools, weekly high-score rewards, cosmetic unlocks, special events and player tips.
 
 ### Security principle
 
@@ -83,15 +72,9 @@ The game platform must **never request, upload, or store a player's private key 
 
 Wallet addresses may be used as identifiers. If wallet authentication is added later, signing should happen locally and the server should only verify the signature.
 
-## Roadmap
-
-See [docs/ROADMAP.md](docs/ROADMAP.md).
-
-The immediate priority is to make the Runner genuinely fun, then establish a reusable platform structure, and only then add optional PEPEPOW functionality.
-
 ## Contributing
 
-The project is in active prototype development. Issues, gameplay ideas, testing feedback, and code contributions are welcome.
+The project is in active prototype development. Gameplay ideas, testing feedback, issues and code contributions are welcome.
 
 ## License
 
