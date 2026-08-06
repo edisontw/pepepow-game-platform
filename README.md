@@ -8,9 +8,9 @@ The project starts with small, replayable games that work well on mobile browser
 
 ## Current status
 
-**Early development / Runner v0.2**
+**Early development / Runner v0.3**
 
-The first playable game is an **Auto-Shooting Runner**: move left and right, automatically shoot enemies, collect weapon upgrades, survive several enemy patterns, and defeat a projectile-firing boss.
+The first playable game is an **Auto-Shooting Runner**: move left and right, automatically shoot enemies, collect weapon upgrades, survive armed enemies, defeat a moving mini-boss, and destroy a larger fixed-position final boss.
 
 - Source: [games/runner](games/runner)
 - Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site
@@ -47,17 +47,17 @@ Each game should remain as independent as practical. Shared PEPEPOW or platform 
 
 ## First game: Auto-Shooting Runner
 
-Runner v0.2 currently includes:
+Runner v0.3 currently includes:
 
 - Automatic shooting
 - Drag / left-right movement
 - Pulse, spread, and rapid weapon behavior
 - Firepower and shield pickups
-- Drone, tank, and zigzag enemies
-- Boss movement and three-way projectile attacks
+- Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemies
+- Moving mini-boss with three-way projectile attacks\n- Larger fixed-position final boss required for stage clear
 - Hit and pickup particle feedback
-- Score and local high score
-- Mobile-friendly controls
+- Three real lives with shield-first damage and brief hit invulnerability\n- Score and local high score
+- Mobile-friendly controls with fullscreen toggle and automatic best-fit fullscreen on run start
 
 The immediate focus remains gameplay tuning, effects, balance, mobile testing, and replay value.
 
