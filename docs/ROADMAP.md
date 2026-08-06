@@ -9,12 +9,16 @@ This roadmap intentionally keeps gameplay ahead of blockchain integration.
 - [x] Basic auto-shooting prototype
 - [x] Left-right / drag controls
 - [x] Health, score, and local high score
-- [x] Mini-boss and final-boss stage progression\n- [x] Fixed-position final boss required for victory
+- [x] Mini-boss and final-boss stage progression
+- [x] Fixed-position final boss required for victory
 - [x] Move the playable source into this repository
 - [x] Add pulse, spread, and rapid weapon variety
 - [x] Add drone, tank, zigzag, and armed soldier enemy patterns
-- [x] Add slower soldier projectiles and faster mini-boss projectiles\n- [x] Add larger final boss with dedicated projectile pattern
-- [x] Add shield pickups and hit / pickup effects\n- [x] Verify three-life damage, shield absorption, hit invulnerability, and game-over flow\n- [x] Add fullscreen toggle and mobile best-fit fullscreen at run start
+- [x] Add slower soldier projectiles and faster mini-boss projectiles
+- [x] Add larger final boss with dedicated projectile pattern
+- [x] Add shield pickups and hit / pickup effects
+- [x] Verify three-life damage, shield absorption, hit invulnerability, and game-over flow
+- [x] Add fullscreen toggle and mobile best-fit fullscreen at run start
 - [ ] Tune difficulty, drop rates, and weapon balance
 - [ ] Test on common mobile screen sizes
 - [ ] Add audio and stronger game-feel feedback
