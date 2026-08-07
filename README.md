@@ -1,21 +1,63 @@
 # PEPEPOW Game Platform
 
-An open-source, mobile-first browser game platform for the PEPEPOW ecosystem.
+An open-source, mobile-first browser arcade for the PEPEPOW ecosystem.
 
 > **Play first, chain later.**
 
-## Current status — 6 playable games
+## Current status
 
-The platform now contains six playable prototypes:
+Six playable games are included:
 
-1. **Auto-Shooting Runner v0.3** — auto-fire runner with upgrades, soldiers, mini-boss and final boss.
-2. **Pet Matching** — fast tile-link matching with combos, hints, reshuffles and local high score.
-3. **Plant Defense v0.3** — lane defense with miners, upgradeable defenders, visible projectiles, bosses and endless progression.
-4. **Idle Pet & Mining** — raise a Hash Hopper, mine HASH, upgrade the rig and unlock expeditions.
-5. **BLOCKSCAPE 3D** — lightweight first-person maze exploration with five relics and a Node Gate objective.
-6. **NODE TACTICS v0.2** — short tactical card runs with visible enemy intent, route choices, upgrades and Overclock difficulty.
+1. **Auto-Shooting Runner v0.7**
+2. **Pet Matching v0.1**
+3. **Plant Defense v0.3**
+4. **Idle Pet & Mining v0.1**
+5. **BLOCKSCAPE 3D v0.1**
+6. **NODE TACTICS v0.2**
 
 Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site/
+
+## Architecture
+
+The project is a **modular monolith**: one Next.js deployment today, with clear boundaries so games, persistence and blockchain infrastructure can evolve independently.
+
+```text
+pepepow-game-platform/
+├── src/
+│   ├── app/                         # Next.js pages + thin HTTP API routes
+│   │   └── api/
+│   │       ├── health/
+│   │       └── chain/status/
+│   ├── games/                       # One isolated feature folder per game
+│   │   ├── runner/
+│   │   ├── pet-matching/
+│   │   ├── plant-defense/
+│   │   ├── idle-pet-mining/
+│   │   ├── blockscape-3d/
+│   │   └── node-tactics/
+│   ├── platform/                    # Cross-game registry/contracts
+│   └── server/
+│       ├── blockchain/
+│       │   └── providers/           # Light API and local wallet RPC adapters
+│       └── db/                      # Persistence contracts/adapters
+├── public/
+│   └── games/runner/                # Static Runner served by Next.js
+├── standalone/
+│   └── runner/                      # Independently hostable Runner
+├── docs/
+├── .env.example
+└── package.json
+```
+
+The important dependency rule is:
+
+```text
+browser games -> platform/API -> server services -> DB or blockchain provider
+```
+
+Games never receive RPC credentials or database credentials. Private keys and seed phrases never belong in this application.
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the planned data and blockchain boundaries.
 
 ## Run locally
 
@@ -24,57 +66,52 @@ Requirements: Node.js 20.9 or newer.
 ```bash
 git clone https://github.com/edisontw/pepepow-game-platform.git
 cd pepepow-game-platform
+cp .env.example .env.local
 npm install
 npm run dev
 ```
 
 Open http://localhost:3000.
 
-For a production build:
-
 ```bash
+npm run lint
 npm run build
 npm start
 ```
 
-The original Runner is also kept as a standalone static game under `games/runner/` and can be opened or hosted without a build step.
+The standalone Runner under `standalone/runner/` can still be hosted without Node.js or a build step.
 
-## Repository structure
+## PEPEPOW providers
 
-```text
-pepepow-game-platform/
-├── app/                 # Platform UI + games 02-06
-├── public/runner/       # Runner used by the platform
-├── games/runner/        # Standalone Runner build
-├── docs/
-├── package.json
-└── README.md
-```
+General chain lookups and payment checks use the public, read-only
+[`light.pepepow.net`](https://light.pepepow.net/) gateway backed by ElectrumX.
+The adapter uses `/api/status`, `/api/address/{address}`, `/api/tx/{txid}` and
+`/api/payment/check`; it does not call node RPC.
 
-## Design goals
+The local wallet RPC client is reserved for future controlled server-side wallet
+operations such as signed payouts. It is not the public data source.
 
-- Fun and understandable before cryptocurrency features
-- Mobile-first browser gameplay
-- Short, replayable sessions
-- Low server requirements
-- Playable without an account or payment
-- Optional PEPEPOW features only where they add value
-- No pay-to-win mechanics
-- Keep core gameplay independent from blockchain services
+Only server code may call these providers. The browser should use application endpoints such as `/api/chain/status`.
 
-## PEPEPOW integration
+## Database direction
 
-Possible later integrations include challenge or tournament entry, community-funded prize pools, weekly high-score rewards, cosmetic unlocks, special events and player tips.
+No database dependency is required for the six current games. Repository contracts now define the boundary for future scores and payment records.
 
-### Security principle
+For the first server-backed release, prefer SQLite when running on one persistent host. Move to PostgreSQL only when multi-instance deployment, higher write concurrency or operational needs justify it. Game code should not care which adapter is selected.
 
-The game platform must **never request, upload, or store a player's private key or seed phrase**.
+## Security
 
-Wallet addresses may be used as identifiers. If wallet authentication is added later, signing should happen locally and the server should only verify the signature.
+- Never request, upload or store player private keys or seed phrases.
+- Keep wallet RPC bound to localhost or a private network.
+- Never expose RPC credentials to client-side code.
+- Treat a wallet address as an identifier, not proof of ownership.
+- If wallet authentication is added, sign a server challenge locally and verify the signature server-side.
+- Separate real PEPEPOW values from fictional in-game points.
+- Require explicit confirmation policy before granting paid entries or rewards.
 
 ## Contributing
 
-The project is in active prototype development. Gameplay ideas, testing feedback, issues and code contributions are welcome.
+The platform is in active prototype development. Gameplay ideas, testing feedback, issues and code contributions are welcome.
 
 ## License
 
