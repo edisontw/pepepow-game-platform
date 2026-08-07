@@ -125,6 +125,7 @@ function reshuffleRemaining(board: Cell[]): Cell[] {
 
 export default function PetMatchingGame() {
   const gameRef = useRef<HTMLDivElement>(null);
+  const musicRef = useRef<HTMLAudioElement>(null);
   const [board, setBoard] = useState<Cell[]>(() => makeBoard(1, false));
   const [selected, setSelected] = useState<Point | null>(null);
   const [hinted, setHinted] = useState<number[]>([]);
@@ -136,6 +137,22 @@ export default function PetMatchingGame() {
   const [status, setStatus] = useState<"ready" | "playing" | "won" | "lost">("ready");
   const [message, setMessage] = useState("Match identical pets with a path of 2 turns or fewer.");
   const [best, setBest] = useState(0);
+  const [musicOn, setMusicOn] = useState(true);
+  const [continueUsed, setContinueUsed] = useState(false);
+
+  useEffect(() => {
+    setMusicOn(window.localStorage.getItem("pepepow-pet-match-music") !== "off");
+  }, []);
+
+  useEffect(() => () => musicRef.current?.pause(), []);
+
+  const playMusic = useCallback(() => {
+    if (!musicOn || !musicRef.current) return;
+    musicRef.current.volume = 0.42;
+    void musicRef.current.play().catch(() => {
+      // Start/Next are direct user gestures and will retry if autoplay is blocked.
+    });
+  }, [musicOn]);
 
   useEffect(() => {
     if (status !== "playing") return;
@@ -175,12 +192,43 @@ export default function PetMatchingGame() {
     setCombo(0);
     setTime(timeForLevel(targetLevel));
     setHints(hintsForLevel(targetLevel));
+    setContinueUsed(false);
     setStatus("playing");
     setMessage(`Level ${targetLevel} · ${typesForLevel(targetLevel)} miner types · outside-edge paths are allowed.`);
   }, []);
 
-  const startGame = useCallback(() => beginLevel(1, true), [beginLevel]);
-  const nextLevel = useCallback(() => beginLevel(level + 1, false), [beginLevel, level]);
+  const startGame = useCallback(() => {
+    playMusic();
+    beginLevel(1, true);
+  }, [beginLevel, playMusic]);
+  const nextLevel = useCallback(() => {
+    playMusic();
+    beginLevel(level + 1, false);
+  }, [beginLevel, level, playMusic]);
+
+  const continueLevel = useCallback(() => {
+    if (status !== "lost" || continueUsed) return;
+    playMusic();
+    setSelected(null);
+    setHinted([]);
+    setTime(30);
+    setContinueUsed(true);
+    setStatus("playing");
+    setMessage(`Level ${level} continued · +30 seconds. Make them count!`);
+  }, [continueUsed, level, playMusic, status]);
+
+  const toggleMusic = () => {
+    const next = !musicOn;
+    setMusicOn(next);
+    window.localStorage.setItem("pepepow-pet-match-music", next ? "on" : "off");
+    if (!musicRef.current) return;
+    if (next) {
+      musicRef.current.volume = 0.42;
+      void musicRef.current.play().catch(() => {});
+    } else {
+      musicRef.current.pause();
+    }
+  };
 
   const handleTile = (index: number) => {
     if (status !== "playing" || !board[index]) return;
@@ -273,8 +321,10 @@ export default function PetMatchingGame() {
 
   return (
     <div className="match-shell" ref={gameRef} id="pet-matching">
+      <audio ref={musicRef} src="/pet-match/Morning_Puzzle_Wins.mp3" loop preload="auto" />
       <div className="match-topbar">
         <div><small>PEPEPOW ARCADE / GAME 02</small><strong>PET MATCH</strong></div>
+        <button type="button" className="match-music-toggle" onClick={toggleMusic} aria-label={`Turn music ${musicOn ? "off" : "on"}`} aria-pressed={musicOn} title={`Music ${musicOn ? "on" : "off"}`}>♫ {musicOn ? "ON" : "OFF"}</button>
         <button type="button" onClick={toggleFullscreen} aria-label="Toggle fullscreen">⛶</button>
       </div>
       <div className="match-stats" aria-label="Game status">
@@ -304,7 +354,14 @@ export default function PetMatchingGame() {
             <span>{status === "ready" ? "ENDLESS MINER MATCH" : status === "won" ? `LEVEL ${level} CLEAR` : "RUN OVER"}</span>
             <h3>{status === "ready" ? "MINER\nMATCH" : status === "won" ? `NEXT\nLEVEL ${level + 1}` : "TRY\nAGAIN?"}</h3>
             <p>{status === "ready" ? "Match identical PEPEPOW miners through paths with no more than two turns. Clear a board to advance — levels continue without an end." : message}</p>
-            <button type="button" onClick={status === "won" ? nextLevel : startGame}>{status === "ready" ? "START ENDLESS RUN" : status === "won" ? `ENTER LEVEL ${level + 1}` : "NEW RUN"}</button>
+            {status === "lost" ? (
+              <div className="match-overlay-actions">
+                {!continueUsed && <button type="button" onClick={continueLevel}>CONTINUE +30s</button>}
+                <button type="button" className="secondary" onClick={startGame}>NEW RUN</button>
+              </div>
+            ) : (
+              <button type="button" onClick={status === "won" ? nextLevel : startGame}>{status === "ready" ? "START ENDLESS RUN" : `ENTER LEVEL ${level + 1}`}</button>
+            )}
           </div>
         )}
       </div>
