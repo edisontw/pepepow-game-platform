@@ -6,14 +6,16 @@ An open-source, mobile-first browser arcade for the PEPEPOW ecosystem.
 
 ## Current status
 
-Six playable games are included:
+The first six games are now playable and the public front page is intentionally simple: choose a game and start playing. No login, wallet or payment is required.
 
-1. **Auto-Shooting Runner v0.7**
-2. **Pet Matching v0.1**
-3. **Plant Defense v0.3**
-4. **Idle Pet & Mining v0.1**
-5. **BLOCKSCAPE 3D v0.1**
-6. **NODE TACTICS v0.2**
+1. **Auto-Shooting Runner** — auto-fire action with weapon leveling, three mini-bosses, a final boss, level summaries and endlessly harder stages.
+2. **Pet Matching** — an endless miner-matching puzzle with rising difficulty, hints, reshuffles, music, and one +30 second continue per run.
+3. **Plant Defense** — lane defense with Hash Miners, three POW Frog levels, Crystal Walls, recurring bosses, mining income and endless stage scaling.
+4. **Idle Pet & Mining** — raise Glowtail, mine HASH, grow the fictional rig, explore expeditions and keep device-local progress.
+5. **BLOCKSCAPE 3D** — first-person exploration across multiple zones with relics, ghosts, close-range combat, upgrades, a minimap and touch controls.
+6. **NODE TACTICS** — a lightweight tactical roguelite built around 3 AP turns, node control, enemy intent, cards, upgrades and stronger AI pressure.
+
+All six games remain browser-first and off-chain. PEPEPOW integration is optional future work and should not be required for core gameplay.
 
 Live platform: https://pepepow-game-platform.edisonhuang.chatgpt.site/
 
