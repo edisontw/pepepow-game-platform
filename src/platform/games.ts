@@ -15,7 +15,7 @@ export type GameDefinition = {
 };
 
 export const games: readonly GameDefinition[] = [
-  { slug: "runner", title: "Auto-Shooting Runner", version: "0.3", status: "playable", persistence: "local" },
+  { slug: "runner", title: "Auto-Shooting Runner", version: "0.7", status: "playable", persistence: "local" },
   { slug: "pet-matching", title: "Pet Matching", version: "0.1", status: "playable", persistence: "local" },
   { slug: "plant-defense", title: "Plant Defense", version: "0.3", status: "playable", persistence: "local" },
   { slug: "idle-pet-mining", title: "Idle Pet & Mining", version: "0.1", status: "playable", persistence: "local" },

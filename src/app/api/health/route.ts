@@ -6,6 +6,6 @@ export function GET() {
   return NextResponse.json({
     ok: true,
     service: "pepepow-game-platform",
-    chainProvider: process.env.PEPEPOW_CHAIN_PROVIDER ?? "light-api",
+    chainProvider: "light-api",
   });
 }

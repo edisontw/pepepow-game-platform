@@ -1,6 +1,9 @@
 import type { ChainProvider } from "../types";
 
-type HeightResponse = { height?: number };
+type StatusResponse = {
+  ok?: boolean;
+  electrumx?: { height?: number };
+};
 
 function joinUrl(baseUrl: string, path: string) {
   return `${baseUrl.replace(/\/$/, "")}${path}`;
@@ -9,14 +12,10 @@ function joinUrl(baseUrl: string, path: string) {
 export class LightApiProvider implements ChainProvider {
   readonly name = "light-api" as const;
 
-  constructor(
-    private readonly baseUrl: string,
-    private readonly apiKey?: string,
-  ) {}
+  constructor(private readonly baseUrl: string) {}
 
   private async request<T>(path: string): Promise<T> {
     const response = await fetch(joinUrl(this.baseUrl, path), {
-      headers: this.apiKey ? { "x-api-key": this.apiKey } : undefined,
       cache: "no-store",
       signal: AbortSignal.timeout(5_000),
     });
@@ -28,18 +27,24 @@ export class LightApiProvider implements ChainProvider {
   }
 
   async getHeight() {
-    const result = await this.request<HeightResponse>("/v1/chain/height");
-    if (!Number.isInteger(result.height)) {
+    const result = await this.request<StatusResponse>("/api/status");
+    const height = result.electrumx?.height;
+    if (!result.ok || !Number.isInteger(height)) {
       throw new Error("PEPEPOW Light API returned an invalid chain height");
     }
-    return result.height as number;
+    return height as number;
   }
 
   getTransaction(txid: string) {
-    return this.request<unknown>(`/v1/tx/${encodeURIComponent(txid)}`);
+    return this.request<unknown>(`/api/tx/${encodeURIComponent(txid)}`);
   }
 
   getAddressBalance(address: string) {
-    return this.request<unknown>(`/v1/addr/${encodeURIComponent(address)}/balance`);
+    return this.request<unknown>(`/api/address/${encodeURIComponent(address)}`);
+  }
+
+  checkPayment(address: string, amount: string) {
+    const query = new URLSearchParams({ address, amount });
+    return this.request<unknown>(`/api/payment/check?${query.toString()}`);
   }
 }

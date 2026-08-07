@@ -12,20 +12,22 @@ No build step, wallet, node, or backend is required.
 
 Any static web server can host this folder as-is.
 
-## v0.3 gameplay
+## v0.7 gameplay
 
 - Automatic shooting
 - `PULSE`, `SPREAD`, and `RAPID` weapon behavior
 - Firepower level upgrades
 - Shield pickups
-- Armed soldiers with slower projectiles, plus drone, tank, and zigzag enemy patterns
-- Moving mini-boss with three-way projectile attacks
-- Larger fixed-position final boss that must be defeated to clear the stage
+- Detailed player, enemy, boss, and pickup sprites
+- Armed enemies and progressively denser projectile pressure
+- Three spaced mini-boss encounters before the final fortress
+- Tougher fixed-position final boss with doubled health
+- Flashing pickups and sound effects for combat, warnings, and rewards
 - Hit, destruction, and pickup particle feedback
 - Three real lives, shield-first damage, brief hit invulnerability, score, and device-local high score
 - Mobile drag controls and desktop keyboard controls
 - Fullscreen toggle plus automatic best-fit fullscreen on mobile at run start
-- Single-stage victory state
+- Extended single-run victory state
 
 The hosted platform remains available at https://pepepow-game-platform.edisonhuang.chatgpt.site.
 
@@ -36,7 +38,7 @@ The hosted platform remains available at https://pepepow-game-platform.edisonhua
 3. Destroy enemies and dodge pressure.
 4. Pick up power, weapon, or shield drops.
 5. Survive the escalating wave.
-6. Defeat the mini-boss, survive the next wave, then destroy the final boss to clear the stage.
+6. Defeat three mini-bosses, survive the escalating sectors, then destroy the final fortress.
 
 ## Blockchain boundary
 
@@ -47,7 +49,6 @@ Wallet, payment, reward, and tournament features may be introduced later through
 ## Next gameplay targets
 
 - Tune weapon balance and drop rates
-- Add a second boss pattern / phase
-- Add audio and stronger game-feel feedback
+- Add a second final-boss pattern / phase
 - Test common mobile screen sizes and low-frame-rate devices
-- Add a compact results summary after each run
+- Expand the results summary after each run

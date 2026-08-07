@@ -42,7 +42,7 @@ export default function Home() {
         </div>
 
         <div className="runner-card" aria-label="Auto-Shooting Runner concept art">
-          <div className="game-topline"><span>RUNNER v0.3</span><span className="live-dot">PLAYABLE NOW</span></div>
+          <div className="game-topline"><span>RUNNER v0.7</span><span className="live-dot">PLAYABLE NOW</span></div>
           <div className="game-world">
             <div className="sun" />
             <div className="speed-lines"><i/><i/><i/><i/></div>
@@ -62,7 +62,7 @@ export default function Home() {
       <section className="play-section section" id="play">
         <div className="play-heading">
           <div><span className="section-kicker">00 / PLAY NOW</span><h2>The first loop<br/>is <em>alive.</em></h2></div>
-          <p>Runner v0.3 adds armed soldiers, a mini-boss and a larger fixed-position final boss. Three lives are real: hits remove HP, shields absorb one hit, and zero HP ends the run.</p>
+          <p>Runner v0.7 builds toward three mini-boss encounters and a tougher final fortress, with denser enemy fire, polished sprites, audio cues and flashing pickups.</p>
         </div>
         <RunnerGame />
       </section>
@@ -125,7 +125,7 @@ export default function Home() {
             <div className="tile-meta"><span>01</span><b>FIRST PROTOTYPE</b></div>
             <div className="mini-runner"><i/><i/><strong>PP</strong></div>
             <div><h3>Auto‑Shooting<br/>Runner</h3><p>Move left and right. Auto-fire. Stack upgrades. Survive the soldiers. Beat the mini-boss, then destroy the final boss.</p></div>
-            <div className="tags"><span>v0.3 playable</span><span>mobile</span><span>high replay</span></div>
+            <div className="tags"><span>v0.7 playable</span><span>mobile</span><span>high replay</span></div>
           </article>
           <article className="game-tile purple"><div className="tile-meta"><span>02</span><b>PLAYABLE NOW</b></div><div className="tile-icon match">◆ ◆<br/> ◆ ◆</div><div><h3><a href="#play-pet-match">Pet<br/>Matching ↗</a></h3><p>Fast tile links, combos, hints, reshuffles and a 90-second score attack.</p></div><div className="tags"><span>v0.1 playable</span><span>all ages</span></div></article>
           <article className="game-tile dark"><div className="tile-meta"><span>03</span><b>PLAYABLE NOW</b></div><div className="tile-icon defense">♟<span>←</span>♟<span>←</span>♟</div><div><h3><a href="#play-plant-defense">Plant<br/>Defense ↗</a></h3><p>Lane defense with upgradeable units, visible projectile combat, recurring bosses and an endless score chase.</p></div><div className="tags"><span>v0.3 playable</span><span>endless defense</span></div></article>

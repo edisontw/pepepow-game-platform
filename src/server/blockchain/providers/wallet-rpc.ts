@@ -1,12 +1,9 @@
-import type { ChainProvider } from "../types";
-
 type RpcResponse<T> = {
   result: T | null;
   error: { code: number; message: string } | null;
 };
 
-export class WalletRpcProvider implements ChainProvider {
-  readonly name = "wallet-rpc" as const;
+export class WalletRpcClient {
   private requestId = 0;
 
   constructor(

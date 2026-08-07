@@ -8,7 +8,7 @@ An open-source, mobile-first browser arcade for the PEPEPOW ecosystem.
 
 Six playable games are included:
 
-1. **Auto-Shooting Runner v0.3**
+1. **Auto-Shooting Runner v0.7**
 2. **Pet Matching v0.1**
 3. **Plant Defense v0.3**
 4. **Idle Pet & Mining v0.1**
@@ -83,12 +83,13 @@ The standalone Runner under `standalone/runner/` can still be hosted without Nod
 
 ## PEPEPOW providers
 
-Set `PEPEPOW_CHAIN_PROVIDER` to:
+General chain lookups and payment checks use the public, read-only
+[`light.pepepow.net`](https://light.pepepow.net/) gateway backed by ElectrumX.
+The adapter uses `/api/status`, `/api/address/{address}`, `/api/tx/{txid}` and
+`/api/payment/check`; it does not call node RPC.
 
-- `light-api` (default): uses the existing PEPEW/PEPEPOW REST service.
-- `wallet-rpc`: uses a PEPEPOW daemon/wallet on the application host through localhost JSON-RPC.
-
-The current REST adapter follows the API exposed by [edisontw/pepew-api](https://github.com/edisontw/pepew-api), including chain height, transaction and address-balance endpoints.
+The local wallet RPC client is reserved for future controlled server-side wallet
+operations such as signed payouts. It is not the public data source.
 
 Only server code may call these providers. The browser should use application endpoints such as `/api/chain/status`.
 

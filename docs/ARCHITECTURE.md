@@ -42,36 +42,42 @@ For a single persistent PEPEPOW host, SQLite is a good first adapter. Keep all a
 
 ## Blockchain provider boundary
 
-`ChainProvider` currently exposes:
+The read-only `ChainProvider` currently exposes:
 
 - chain height
 - transaction lookup
 - address balance lookup
-
-Two adapters are prepared:
+- address-level payment check
 
 ### Light API
 
-`LightApiProvider` follows the REST endpoints documented by `edisontw/pepew-api`:
+`LightApiProvider` calls the public ElectrumX-backed gateway at
+`light.pepepow.net`:
 
-- `GET /v1/chain/height`
-- `GET /v1/tx/:txid`
-- `GET /v1/addr/:address/balance`
+- `GET /api/status`
+- `GET /api/address/{address}`
+- `GET /api/tx/{txid}`
+- `GET /api/payment/check?address={address}&amount={amount}`
 
-Use this when the platform should not depend directly on a local node or when a public/community API is acceptable.
+This is the platform's general chain-data boundary. It does not invoke the
+PEPEPOW node RPC directly.
 
 ### Local wallet RPC
 
-`WalletRpcProvider` connects server-to-server, normally to `127.0.0.1:8093`. Credentials are read only from environment variables. Never proxy arbitrary RPC methods from the browser.
+`WalletRpcClient` connects server-to-server, normally to `127.0.0.1:8093`.
+Credentials are read only from environment variables. Never proxy arbitrary RPC
+methods from the browser.
 
-Use this when the application host has its own PEPEPOW node/wallet and needs independent verification or later controlled payout functionality.
+It is reserved for future controlled wallet operations such as payouts when the
+application host has its own PEPEPOW wallet. It is not used for public chain
+lookups or payment checks.
 
 ## Recommended payment flow
 
 1. Browser requests a payment intent from the platform API.
 2. Server stores expected amount, destination, purpose and expiry.
 3. Player sends PEPEPOW with their own wallet.
-4. A server worker verifies the transaction through the selected `ChainProvider`.
+4. A server worker verifies the transaction through the Light API `ChainProvider`.
 5. Server waits for the configured confirmation policy.
 6. A database transaction marks the payment confirmed and grants the entry/unlock exactly once.
 7. Reward payout, if any, is a separate server-side action with an audit record.
@@ -110,7 +116,10 @@ Next.js + SQLite + server-side score/payment APIs. Read-only chain verification 
 
 ### Stage C - PEPEPOW host integration
 
-Run PEPEPOW RPC on localhost/private networking, switch provider using environment configuration, and add a separate background worker for confirmations/rewards.
+Run PEPEPOW wallet RPC on localhost/private networking for controlled payout
+operations, while continuing to use Light API for public chain queries and
+payment verification. Add a separate background worker for confirmations and
+rewards.
 
 ### Stage D - only if needed
 

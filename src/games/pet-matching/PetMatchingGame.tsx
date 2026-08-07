@@ -4,8 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const ROWS = 6;
 const COLS = 8;
-const START_TIME = 90;
-const PETS = ["🐸", "🐕", "🦊", "🐰", "🐼", "🐱", "🐧", "🐙"];
+const PETS = [
+  { id: "frog-miner", name: "Frog miner", x: 0, y: 0 },
+  { id: "dog-miner", name: "Dog miner", x: 50, y: 0 },
+  { id: "penguin-miner", name: "Penguin miner", x: 100, y: 0 },
+  { id: "bull-miner", name: "Bull miner", x: 0, y: 50 },
+  { id: "cat-miner", name: "Cat engineer", x: 50, y: 50 },
+  { id: "turtle-miner", name: "Turtle miner", x: 100, y: 50 },
+  { id: "bear-miner", name: "Bear miner", x: 0, y: 100 },
+  { id: "owl-miner", name: "Owl engineer", x: 50, y: 100 },
+  { id: "dragon-miner", name: "Dragon miner", x: 100, y: 100 },
+] as const;
+const PET_BY_ID = Object.fromEntries(PETS.map((pet) => [pet.id, pet])) as Record<string, (typeof PETS)[number]>;
 
 type Cell = string | null;
 type Point = { r: number; c: number };
@@ -19,10 +29,23 @@ function shuffle<T>(items: T[]): T[] {
   return next;
 }
 
-function makeBoard(randomize = true): Cell[] {
+function typesForLevel(level: number) {
+  return Math.min(PETS.length, 5 + Math.floor((level - 1) / 2));
+}
+
+function timeForLevel(level: number) {
+  return Math.max(64, 92 - Math.min(28, (level - 1) * 2));
+}
+
+function hintsForLevel(level: number) {
+  return Math.max(1, 3 - Math.floor((level - 1) / 4));
+}
+
+function makeBoard(level = 1, randomize = true): Cell[] {
   const tiles: string[] = [];
+  const activePets = PETS.slice(0, typesForLevel(level));
   for (let pair = 0; pair < (ROWS * COLS) / 2; pair++) {
-    const pet = PETS[pair % PETS.length];
+    const pet = activePets[pair % activePets.length].id;
     tiles.push(pet, pet);
   }
   return randomize ? shuffle(tiles) : tiles;
@@ -102,12 +125,13 @@ function reshuffleRemaining(board: Cell[]): Cell[] {
 
 export default function PetMatchingGame() {
   const gameRef = useRef<HTMLDivElement>(null);
-  const [board, setBoard] = useState<Cell[]>(() => makeBoard(false));
+  const [board, setBoard] = useState<Cell[]>(() => makeBoard(1, false));
   const [selected, setSelected] = useState<Point | null>(null);
   const [hinted, setHinted] = useState<number[]>([]);
+  const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [time, setTime] = useState(START_TIME);
+  const [time, setTime] = useState(() => timeForLevel(1));
   const [hints, setHints] = useState(3);
   const [status, setStatus] = useState<"ready" | "playing" | "won" | "lost">("ready");
   const [message, setMessage] = useState("Match identical pets with a path of 2 turns or fewer.");
@@ -119,14 +143,14 @@ export default function PetMatchingGame() {
       setTime(current => {
         if (current <= 1) {
           setStatus("lost");
-          setMessage("Time up — try a faster route through the board.");
+          setMessage(`Level ${level} timed out. Your endless run reached level ${level}.`);
           return 0;
         }
         return current - 1;
       });
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [status]);
+  }, [level, status]);
 
   const remaining = useMemo(() => board.filter(Boolean).length, [board]);
 
@@ -138,21 +162,25 @@ export default function PetMatchingGame() {
     });
   }, []);
 
-  const startGame = useCallback(() => {
+  const beginLevel = useCallback((targetLevel: number, resetScore: boolean) => {
     setBest(Number(window.localStorage.getItem("pepepow-pet-match-best") || 0));
-    let next = makeBoard();
+    let next = makeBoard(targetLevel);
     let tries = 0;
     while (!findMove(next) && tries++ < 12) next = reshuffleRemaining(next);
     setBoard(next);
     setSelected(null);
     setHinted([]);
-    setScore(0);
+    if (resetScore) setScore(0);
+    setLevel(targetLevel);
     setCombo(0);
-    setTime(START_TIME);
-    setHints(3);
+    setTime(timeForLevel(targetLevel));
+    setHints(hintsForLevel(targetLevel));
     setStatus("playing");
-    setMessage("Find a matching pair. Outside-edge paths are allowed.");
+    setMessage(`Level ${targetLevel} · ${typesForLevel(targetLevel)} miner types · outside-edge paths are allowed.`);
   }, []);
+
+  const startGame = useCallback(() => beginLevel(1, true), [beginLevel]);
+  const nextLevel = useCallback(() => beginLevel(level + 1, false), [beginLevel, level]);
 
   const handleTile = (index: number) => {
     if (status !== "playing" || !board[index]) return;
@@ -191,11 +219,12 @@ export default function PetMatchingGame() {
     setSelected(null);
 
     if (next.every(cell => cell === null)) {
-      const finalScore = nextScore + time * 15;
+      const timeBonus = time * 15 * level;
+      const finalScore = nextScore + timeBonus;
       setScore(finalScore);
       saveBest(finalScore);
       setStatus("won");
-      setMessage(`Board clear! +${time * 15} time bonus.`);
+      setMessage(`Level ${level} clear! +${timeBonus} time bonus. Level ${level + 1} is ready.`);
       setBoard(next);
       return;
     }
@@ -208,7 +237,7 @@ export default function PetMatchingGame() {
       setMessage(`+${gained} · No moves left, so the pets reshuffled.`);
     } else {
       setBoard(next);
-      setMessage(`+${gained} · Combo x${nextCombo}`);
+      setMessage(`+${gained} · Combo ×${nextCombo} · Level ${level}`);
     }
   };
 
@@ -249,6 +278,7 @@ export default function PetMatchingGame() {
         <button type="button" onClick={toggleFullscreen} aria-label="Toggle fullscreen">⛶</button>
       </div>
       <div className="match-stats" aria-label="Game status">
+        <div><small>LEVEL</small><strong>{level}</strong></div>
         <div><small>SCORE</small><strong>{score.toString().padStart(5, "0")}</strong></div>
         <div><small>TIME</small><strong className={time <= 15 ? "danger" : ""}>{time}s</strong></div>
         <div><small>COMBO</small><strong>×{combo}</strong></div>
@@ -261,26 +291,27 @@ export default function PetMatchingGame() {
             const point = { r: Math.floor(index / COLS), c: index % COLS };
             const isSelected = selected ? samePoint(selected, point) : false;
             const isHinted = hinted.includes(index);
+            const petMeta = pet ? PET_BY_ID[pet] : null;
             return (
-              <button type="button" role="gridcell" className={`pet-tile ${!pet ? "empty" : ""} ${isSelected ? "selected" : ""} ${isHinted ? "hinted" : ""}`} key={index} disabled={!pet || status !== "playing"} onClick={() => handleTile(index)} aria-label={pet ? `Pet ${pet}, row ${point.r + 1}, column ${point.c + 1}` : "Empty"}>
-                <span>{pet}</span>
+              <button type="button" role="gridcell" className={`pet-tile ${pet ? `pet-${pet}` : "empty"} ${isSelected ? "selected" : ""} ${isHinted ? "hinted" : ""}`} key={index} disabled={!pet || status !== "playing"} onClick={() => handleTile(index)} aria-label={petMeta ? `${petMeta.name}, row ${point.r + 1}, column ${point.c + 1}` : "Empty"}>
+                {petMeta && <span className="miner-pet" style={{ backgroundPosition: `${petMeta.x}% ${petMeta.y}%` }} aria-hidden="true" />}
               </button>
             );
           })}
         </div>
         {status !== "playing" && (
           <div className="match-overlay">
-            <span>{status === "ready" ? "NEW PROTOTYPE" : status === "won" ? "BOARD CLEAR" : "TIME UP"}</span>
-            <h3>{status === "ready" ? "PET\nMATCH" : status === "won" ? "NICE\nRUN." : "AGAIN?"}</h3>
-            <p>{status === "ready" ? "Pair identical pets if they can connect in no more than two turns. Clear all 48 before time runs out." : message}</p>
-            <button type="button" onClick={startGame}>{status === "ready" ? "START GAME" : "PLAY AGAIN"}</button>
+            <span>{status === "ready" ? "ENDLESS MINER MATCH" : status === "won" ? `LEVEL ${level} CLEAR` : "RUN OVER"}</span>
+            <h3>{status === "ready" ? "MINER\nMATCH" : status === "won" ? `NEXT\nLEVEL ${level + 1}` : "TRY\nAGAIN?"}</h3>
+            <p>{status === "ready" ? "Match identical PEPEPOW miners through paths with no more than two turns. Clear a board to advance — levels continue without an end." : message}</p>
+            <button type="button" onClick={status === "won" ? nextLevel : startGame}>{status === "ready" ? "START ENDLESS RUN" : status === "won" ? `ENTER LEVEL ${level + 1}` : "NEW RUN"}</button>
           </div>
         )}
       </div>
       <div className="match-controls">
         <p>{message}</p>
         <div>
-          <button type="button" onClick={useHint} disabled={status !== "playing" || hints <= 0}>HINT {hints}/3</button>
+          <button type="button" onClick={useHint} disabled={status !== "playing" || hints <= 0}>HINT {hints}/{hintsForLevel(level)}</button>
           <button type="button" onClick={shuffleBoard} disabled={status !== "playing"}>SHUFFLE −150</button>
         </div>
       </div>
