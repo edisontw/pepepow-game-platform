@@ -24,7 +24,7 @@
   };
   const shell = document.querySelector(".game-shell");
   const city = new Image();
-  city.src = "../brand/pepepow-miner-city.webp";
+  city.src = "../../brand/pepepow-miner-city.webp";
 
   const sprites = {
     player: new Image(),
@@ -64,6 +64,7 @@
   let musicMode = null;
   let musicTarget = null;
   let musicFade = 0;
+  let hostFullscreenActive = false;
   const musicFiles = { run: "assets/Apex_Pursuit.mp3", boss: "assets/Gold_Coin_Velocity.mp3" };
   const music = new Audio();
   music.loop = true;
@@ -302,23 +303,27 @@
   }
 
   function updateFullscreenLabel() {
-    ui.fullscreen.textContent = fullscreenElement() || shell.classList.contains("local-immersive") ? "↙ EXIT" : "⛶ FULLSCREEN";
+    ui.fullscreen.textContent = fullscreenElement() || shell.classList.contains("local-immersive") || hostFullscreenActive ? "↙ EXIT" : "⛶ FULLSCREEN";
   }
 
   window.addEventListener("message", (event) => {
     if (event.origin !== window.location.origin || event.source !== window.parent) return;
     if (event.data?.type === "pepepow-runner-fullscreen-state") {
-      ui.fullscreen.textContent = event.data.active ? "↙ EXIT" : "⛶ FULLSCREEN";
+      hostFullscreenActive = Boolean(event.data.active);
+      shell.classList.toggle("host-immersive", hostFullscreenActive);
+      updateFullscreenLabel();
     }
   });
 
-  function toggleFullscreen(force = false) {
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: force ? "pepepow-runner-fullscreen-enter" : "pepepow-runner-fullscreen-toggle" }, window.location.origin);
+  async function toggleFullscreen(force = false) {
+    if (fullscreenElement() && !force) {
+      try { await (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); } catch {}
       return;
     }
-    if (fullscreenElement() && !force) {
-      (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)?.catch?.(() => {});
+    if (hostFullscreenActive) {
+      if (!force && window.parent !== window) {
+        window.parent.postMessage({ type: "pepepow-runner-fullscreen-exit" }, window.location.origin);
+      }
       return;
     }
     if (shell.classList.contains("local-immersive") && !force) {
@@ -328,19 +333,23 @@
     }
     if (fullscreenElement()) return;
     try {
-      const request = shell.requestFullscreen?.({ navigationUI: "hide" }) || shell.webkitRequestFullscreen?.();
-      request?.catch?.(() => {
-        shell.classList.add("local-immersive");
+      if (shell.requestFullscreen) {
+        await shell.requestFullscreen();
         updateFullscreenLabel();
-      });
-      if (!request) {
-        shell.classList.add("local-immersive");
-        updateFullscreenLabel();
+        return;
       }
-    } catch {
-      shell.classList.add("local-immersive");
-      updateFullscreenLabel();
+      if (shell.webkitRequestFullscreen) {
+        shell.webkitRequestFullscreen();
+        updateFullscreenLabel();
+        return;
+      }
+    } catch {}
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: force ? "pepepow-runner-fullscreen-enter" : "pepepow-runner-fullscreen-toggle" }, window.location.origin);
+      return;
     }
+    shell.classList.add("local-immersive");
+    updateFullscreenLabel();
   }
 
   function fitForPlay() {
@@ -354,9 +363,13 @@
     ctx.fillStyle = "#070a16";
     ctx.fillRect(0, 0, W, H);
     if (city.complete && city.naturalWidth) {
-      const cityH = W / (city.naturalWidth / city.naturalHeight);
+      const scale = Math.max(W / city.naturalWidth, H / city.naturalHeight);
+      const cityW = city.naturalWidth * scale;
+      const cityH = city.naturalHeight * scale;
+      const cityX = (W - cityW) * 0.42;
+      const cityY = (H - cityH) / 2;
       ctx.globalAlpha = 0.62;
-      ctx.drawImage(city, 0, 0, city.naturalWidth, city.naturalHeight, 0, 0, W, cityH);
+      ctx.drawImage(city, 0, 0, city.naturalWidth, city.naturalHeight, cityX, cityY, cityW, cityH);
       ctx.globalAlpha = 1;
     } else {
       const sky = ctx.createLinearGradient(0, 0, 0, H);
