@@ -15,7 +15,7 @@ test("smoke: platform and all six games render", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "PEPEPOW ARCADE" })).toBeVisible();
   for (const [tab, heading] of games) {
     await page.getByRole("tab", { name: tab }).click();
-    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    await expect(page.locator(".arcade-heading").getByRole("heading", { name: heading, exact: true })).toBeVisible();
   }
 });
 
@@ -24,7 +24,7 @@ test("runner: starts, accepts keyboard input, and exposes audio", async ({ page 
   await frame.getByRole("button", { name: /START RUN/i }).click();
   await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("ArrowRight");
-  await expect(frame.getByRole("button", { name: /BGM/i })).toBeVisible();
+  await expect(frame.getByRole("button", { name: /Toggle background music/i })).toBeVisible();
 });
 
 test("pet matching: starts endless progression and exposes audio", async ({ page }) => {
