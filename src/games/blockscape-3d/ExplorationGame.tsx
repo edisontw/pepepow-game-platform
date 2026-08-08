@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useArcadeFullscreen } from "../../platform/useArcadeFullscreen";
 
 type Point = { x: number; y: number; name: string };
 type RunState = "ready" | "playing" | "won" | "lost";
@@ -149,7 +150,7 @@ const makeGhosts = (stage: number): Ghost[] => {
 const timeLimitFor = (stage: number) => Math.max(65, levelFor(stage).timeLimit - cycleFor(stage) * 5);
 
 export default function ExplorationGame() {
-  const shellRef = useRef<HTMLDivElement>(null);
+  const { shellRef, immersive, toggleFullscreen } = useArcadeFullscreen<HTMLDivElement>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const player = useRef({ ...LEVELS[0].start });
@@ -247,12 +248,6 @@ export default function ExplorationGame() {
     if (upgrade === "stealth") stealthRef.current = Math.min(3, stealthRef.current + 1);
     beginLevel(stageRef.current + 1);
   }, [beginLevel]);
-
-  const toggleFullscreen = async () => {
-    if (!shellRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await shellRef.current.requestFullscreen();
-  };
 
   const setControl = (key: string, down: boolean) => {
     if (stateRef.current !== "playing") return;
@@ -536,7 +531,7 @@ export default function ExplorationGame() {
   const config = levelFor(stage);
   const zoneIndex = (stage - 1) % LEVELS.length;
   return (
-    <div className="explore-shell" ref={shellRef} id="3d-exploration">
+    <div className={`explore-shell${immersive ? " is-immersive" : ""}`} ref={shellRef} id="3d-exploration">
       <audio ref={musicRef} src="/blockscape/Beneath_the_Glass_Floor.mp3" loop preload="auto" />
       <div className="explore-topbar">
         <div><small>GAME 05 · LEVEL {stage} · {config.callout}</small><strong>BLOCKSCAPE 3D / {config.name}</strong></div>
