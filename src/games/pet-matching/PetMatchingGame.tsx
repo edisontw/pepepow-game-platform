@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useArcadeFullscreen } from "../../platform/useArcadeFullscreen";
 
 const ROWS = 6;
 const COLS = 8;
@@ -124,7 +125,7 @@ function reshuffleRemaining(board: Cell[]): Cell[] {
 }
 
 export default function PetMatchingGame() {
-  const gameRef = useRef<HTMLDivElement>(null);
+  const { shellRef: gameRef, immersive, toggleFullscreen } = useArcadeFullscreen<HTMLDivElement>();
   const musicRef = useRef<HTMLAudioElement>(null);
   const [board, setBoard] = useState<Cell[]>(() => makeBoard(1, false));
   const [selected, setSelected] = useState<Point | null>(null);
@@ -313,14 +314,8 @@ export default function PetMatchingGame() {
     setMessage("Board shuffled · −150 points.");
   };
 
-  const toggleFullscreen = async () => {
-    if (!gameRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await gameRef.current.requestFullscreen();
-  };
-
   return (
-    <div className="match-shell" ref={gameRef} id="pet-matching">
+    <div className={`match-shell${immersive ? " is-immersive" : ""}`} ref={gameRef} id="pet-matching">
       <audio ref={musicRef} src="/pet-match/Morning_Puzzle_Wins.mp3" loop preload="auto" />
       <div className="match-topbar">
         <div><small>PEPEPOW ARCADE / GAME 02</small><strong>PET MATCH</strong></div>
