@@ -24,7 +24,7 @@
   };
   const shell = document.querySelector(".game-shell");
   const city = new Image();
-  city.src = "../../brand/pepepow-miner-city.webp";
+  city.src = "../brand/pepepow-miner-city.webp";
 
   const sprites = {
     player: new Image(),
@@ -69,6 +69,11 @@
   music.loop = true;
   music.preload = "auto";
   music.volume = 0.34;
+
+  function syncViewportHeight() {
+    const height = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
+    document.documentElement.style.setProperty("--runner-app-height", `${Math.round(height)}px`);
+  }
 
   function pad(n) {
     return String(Math.floor(n)).padStart(5, "0");
@@ -297,19 +302,45 @@
   }
 
   function updateFullscreenLabel() {
-    ui.fullscreen.textContent = fullscreenElement() ? "↙ EXIT" : "⛶ FULLSCREEN";
+    ui.fullscreen.textContent = fullscreenElement() || shell.classList.contains("local-immersive") ? "↙ EXIT" : "⛶ FULLSCREEN";
   }
 
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin || event.source !== window.parent) return;
+    if (event.data?.type === "pepepow-runner-fullscreen-state") {
+      ui.fullscreen.textContent = event.data.active ? "↙ EXIT" : "⛶ FULLSCREEN";
+    }
+  });
+
   function toggleFullscreen(force = false) {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: force ? "pepepow-runner-fullscreen-enter" : "pepepow-runner-fullscreen-toggle" }, window.location.origin);
+      return;
+    }
     if (fullscreenElement() && !force) {
       (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)?.catch?.(() => {});
       return;
     }
+    if (shell.classList.contains("local-immersive") && !force) {
+      shell.classList.remove("local-immersive");
+      updateFullscreenLabel();
+      return;
+    }
     if (fullscreenElement()) return;
     try {
-      shell.requestFullscreen?.({ navigationUI: "hide" })?.catch?.(() => {});
-      shell.webkitRequestFullscreen?.();
-    } catch {}
+      const request = shell.requestFullscreen?.({ navigationUI: "hide" }) || shell.webkitRequestFullscreen?.();
+      request?.catch?.(() => {
+        shell.classList.add("local-immersive");
+        updateFullscreenLabel();
+      });
+      if (!request) {
+        shell.classList.add("local-immersive");
+        updateFullscreenLabel();
+      }
+    } catch {
+      shell.classList.add("local-immersive");
+      updateFullscreenLabel();
+    }
   }
 
   function fitForPlay() {
@@ -1072,6 +1103,10 @@
   });
   document.addEventListener("fullscreenchange", updateFullscreenLabel);
   document.addEventListener("webkitfullscreenchange", updateFullscreenLabel);
+  window.addEventListener("resize", syncViewportHeight);
+  window.addEventListener("orientationchange", syncViewportHeight);
+  window.visualViewport?.addEventListener("resize", syncViewportHeight);
+  syncViewportHeight();
 
   g = {
     playerX: W / 2,
