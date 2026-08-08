@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useArcadeFullscreen } from "../../platform/useArcadeFullscreen";
 import {
   BASE_ENERGY_CAP,
   COLS,
@@ -67,7 +68,7 @@ const initialState = (): GameState => ({
 });
 
 export default function PlantDefenseGame() {
-  const gameRef = useRef<HTMLDivElement>(null);
+  const { shellRef: gameRef, immersive, fullscreenActive, toggleFullscreen } = useArcadeFullscreen<HTMLDivElement>();
   const [game, setGame] = useState<GameState>(() => initialState());
   const [selected, setSelected] = useState<BuildChoice>("frog");
   const [best, setBest] = useState(0);
@@ -437,21 +438,15 @@ export default function PlantDefenseGame() {
     }
   };
 
-  const toggleFullscreen = async () => {
-    if (!gameRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await gameRef.current.requestFullscreen();
-  };
-
   const minerIncome = getMinerIncome(game.units, game.wave);
 
   return (
-    <div className="defense-shell" ref={gameRef} id="plant-defense">
+    <div className={`defense-shell${immersive ? " is-immersive" : ""}`} ref={gameRef} id="plant-defense">
       <div className="defense-topbar">
         <div><small>PEPEPOW ARCADE / GAME 03</small><strong>PLANT DEFENSE</strong></div>
         <div className="defense-topbar-actions">
           <button type="button" onClick={toggleSound} aria-label={soundOn ? "Mute sound" : "Enable sound"}><span>{soundOn ? "SOUND ON" : "SOUND OFF"}</span>{soundOn ? "♪" : "×"}</button>
-          <button type="button" onClick={toggleFullscreen} aria-label="Toggle fullscreen"><span>FULLSCREEN</span>⛶</button>
+          <button type="button" onClick={toggleFullscreen} aria-label="Toggle fullscreen"><span>{fullscreenActive ? "EXIT" : "FULLSCREEN"}</span>⛶</button>
         </div>
       </div>
 
