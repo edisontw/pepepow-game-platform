@@ -9,7 +9,7 @@ import ExplorationGame from "@/games/blockscape-3d/ExplorationGame";
 import CardBattlerGame from "@/games/node-tactics/CardBattlerGame";
 
 const games = [
-  { id: "01", hash: "play-game", title: "Auto-Shooting Runner", short: "Runner", genre: "ACTION", time: "1–5 MIN", controls: "A/D · ←/→ · DRAG", component: <RunnerGame /> },
+  { id: "01", hash: "play-game", title: "Auto-Shooting Runner", short: "Runner", genre: "ACTION", time: "ENDLESS", controls: "WASD · ARROWS · DRAG", component: <RunnerGame /> },
   { id: "02", hash: "play-pet-match", title: "Pet Matching", short: "Pet Match", genre: "PUZZLE", time: "ENDLESS", controls: "TAP / CLICK", component: <PetMatchingGame /> },
   { id: "03", hash: "play-plant-defense", title: "Plant Defense", short: "Defense", genre: "STRATEGY", time: "ENDLESS", controls: "TAP / CLICK", component: <PlantDefenseGame /> },
   { id: "04", hash: "play-idle-pet", title: "Idle Pet & Mining", short: "Pet & Mine", genre: "IDLE", time: "OPEN ENDED", controls: "TAP / CLICK", component: <IdlePetMiningGame /> },
@@ -18,7 +18,7 @@ const games = [
 ] as const;
 
 const descriptions: Record<string, string> = {
-  "01": "Move left and right, auto-fire, stack upgrades and survive the run. Three lives are real; shields absorb one hit. Beat the mini-boss, then destroy the final boss.",
+  "01": "Move freely through the lower combat zone, auto-fire, stack weapon upgrades and survive an endless run. Three lives are real; each level has three mini-bosses before the Core Fortress.",
   "02": "Match identical PEPEPOW miners through paths with no more than two turns. Clear each board to enter the next level in an endless run as the timer, character mix and hints gradually get tougher.",
   "03": "Build a PEPEPOW crystal defense with miners, plants and crystal barriers. Clear five waves and a Node Breaker to enter the next stage; stages continue forever and grow harder as you climb.",
   "04": "Mine HASH and raise Glowtail, an original luminous cave pet that grows, changes gear, wanders and reacts as it levels. Upgrade the fictional rig, unlock short expeditions and collect finds; progress saves on this device.",
