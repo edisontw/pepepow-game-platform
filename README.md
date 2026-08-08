@@ -8,7 +8,7 @@ An open-source, mobile-first browser arcade for the PEPEPOW ecosystem.
 
 The first six games are now playable and the public front page is intentionally simple: choose a game and start playing. No login, wallet or payment is required.
 
-1. **Auto-Shooting Runner** — auto-fire action with weapon leveling, three mini-bosses, a final boss, level summaries and endlessly harder stages.
+1. **Auto-Shooting Runner** — 2D movement, auto-fire action, weapon leveling, responsive fullscreen, three mini-bosses, a final boss, level summaries and endlessly harder stages.
 2. **Pet Matching** — an endless miner-matching puzzle with rising difficulty, hints, reshuffles, music, and one +30 second continue per run.
 3. **Plant Defense** — lane defense with Hash Miners, three POW Frog levels, Crystal Walls, recurring bosses, mining income and endless stage scaling.
 4. **Idle Pet & Mining** — raise Glowtail, mine HASH, grow the fictional rig, explore expeditions and keep device-local progress.
