@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { ChainProvider } from "../types";
 
 type StatusResponse = {
