@@ -1,0 +1,144 @@
+/* Games 02–06 fullscreen: native Fullscreen API + iOS/embedded-browser
+   immersive fallback. visualViewport values are supplied by useArcadeFullscreen. */
+html.arcade-immersive-active,
+html.arcade-immersive-active body{overflow:hidden!important;overscroll-behavior:none}
+
+.match-shell:fullscreen,.match-shell.is-immersive,
+.defense-shell:fullscreen,.defense-shell.is-immersive,
+.idle-shell:fullscreen,.idle-shell.is-immersive,
+.explore-shell:fullscreen,.explore-shell.is-immersive,
+.card-shell:fullscreen,.card-shell.is-immersive{
+  width:var(--game-viewport-width,100dvw);height:var(--game-viewport-height,100dvh);
+  max-width:none;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;
+  box-sizing:border-box;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)
+}
+.match-shell.is-immersive,.defense-shell.is-immersive,.idle-shell.is-immersive,.explore-shell.is-immersive,.card-shell.is-immersive{
+  position:fixed;z-index:10000;left:var(--game-viewport-left,0);top:var(--game-viewport-top,0)
+}
+.match-shell.is-immersive .match-topbar>button:last-child::before,
+.defense-shell.is-immersive .defense-topbar-actions>button:last-child::before,
+.idle-shell.is-immersive .idle-topbar-actions>button:last-child::before,
+.explore-shell.is-immersive .explore-topbar>button:last-child::before,
+.card-shell.is-immersive .tactics-topbar-actions>button:last-child::before{content:"EXIT"}
+
+/* Pet Matching: size the 8×6 board from the available height, not 100vh. */
+.match-shell:fullscreen,.match-shell.is-immersive{display:flex;flex-direction:column;background:#f3f0e7;overflow:hidden}
+.match-shell:fullscreen .match-topbar,.match-shell.is-immersive .match-topbar{height:56px;flex:0 0 56px}
+.match-shell:fullscreen .match-stats,.match-shell.is-immersive .match-stats{flex:0 0 auto}
+.match-shell:fullscreen .match-stats div,.match-shell.is-immersive .match-stats div{padding:6px 8px;gap:2px}
+.match-shell:fullscreen .match-board-wrap,.match-shell.is-immersive .match-board-wrap{
+  flex:1 1 auto;min-height:0;padding:8px;display:grid;place-items:center;overflow:hidden
+}
+.match-shell:fullscreen .match-board,.match-shell.is-immersive .match-board{
+  width:auto;height:100%;max-width:100%;max-height:465px;aspect-ratio:4/3;margin:auto
+}
+.match-shell:fullscreen .match-controls,.match-shell.is-immersive .match-controls{flex:0 0 auto;min-height:54px;padding:7px 10px}
+
+/* Plant Defense: keep board, build bar and status visible together. */
+.defense-shell:fullscreen,.defense-shell.is-immersive{display:flex;flex-direction:column;background:#121210;overflow:hidden}
+.defense-shell:fullscreen .defense-topbar,.defense-shell.is-immersive .defense-topbar{height:56px;flex:0 0 56px}
+.defense-shell:fullscreen .defense-stats,.defense-shell.is-immersive .defense-stats{flex:0 0 auto}
+.defense-shell:fullscreen .defense-stats div,.defense-shell.is-immersive .defense-stats div{padding:5px 7px;gap:2px}
+.defense-shell:fullscreen .defense-stage,.defense-shell.is-immersive .defense-stage{height:auto;min-height:210px;flex:1 1 auto}
+.defense-shell:fullscreen .defense-shop,.defense-shell.is-immersive .defense-shop{flex:0 0 auto;grid-template-columns:repeat(4,1fr)}
+.defense-shell:fullscreen .defense-shop button,.defense-shell.is-immersive .defense-shop button{min-height:66px;padding:5px 8px}
+.defense-shell:fullscreen .defense-message,.defense-shell.is-immersive .defense-message{min-height:38px;padding:6px 10px;flex:0 0 auto}
+
+/* Idle Pet: tutorial copy yields to the live pet, controls and status. */
+.idle-shell:fullscreen,.idle-shell.is-immersive{display:flex;flex-direction:column;background:#08121c;overflow:hidden}
+.idle-shell:fullscreen .idle-topbar,.idle-shell.is-immersive .idle-topbar{height:56px;flex:0 0 56px}
+.idle-shell:fullscreen .idle-quickstart,.idle-shell.is-immersive .idle-quickstart{display:none}
+.idle-shell:fullscreen .idle-stats,.idle-shell.is-immersive .idle-stats{flex:0 0 auto}
+.idle-shell:fullscreen .idle-stats div,.idle-shell.is-immersive .idle-stats div{padding:6px 7px;gap:2px}
+.idle-shell:fullscreen .idle-world,.idle-shell.is-immersive .idle-world{height:auto;min-height:240px;flex:1 1 auto}
+.idle-shell:fullscreen .idle-actions,.idle-shell.is-immersive .idle-actions{grid-template-columns:repeat(4,1fr);flex:0 0 auto}
+.idle-shell:fullscreen .idle-actions button,.idle-shell.is-immersive .idle-actions button{min-height:64px;padding:6px 4px}
+.idle-shell:fullscreen .idle-collection,.idle-shell.is-immersive .idle-collection{min-height:38px;padding:6px 10px;flex:0 0 auto}
+.idle-shell:fullscreen .idle-message,.idle-shell.is-immersive .idle-message{min-height:38px;padding:6px 10px;flex:0 0 auto}
+
+/* Blockscape: the 3D canvas owns the remaining viewport in both orientations. */
+.explore-shell:fullscreen,.explore-shell.is-immersive{display:flex;flex-direction:column;background:#050b0e;overflow:hidden}
+.explore-shell:fullscreen .explore-topbar,.explore-shell.is-immersive .explore-topbar{height:56px;flex:0 0 56px}
+.explore-shell:fullscreen .explore-route,.explore-shell.is-immersive .explore-route{flex:0 0 auto}
+.explore-shell:fullscreen .explore-route span,.explore-shell.is-immersive .explore-route span{min-height:30px}
+.explore-shell:fullscreen .explore-guide,.explore-shell.is-immersive .explore-guide{display:none}
+.explore-shell:fullscreen .explore-hud,.explore-shell.is-immersive .explore-hud{flex:0 0 auto}
+.explore-shell:fullscreen .explore-hud>div,.explore-shell.is-immersive .explore-hud>div{min-height:34px;padding:6px 8px}
+.explore-shell:fullscreen .explore-view,.explore-shell.is-immersive .explore-view{flex:1 1 auto;min-height:0;overflow:hidden}
+.explore-shell:fullscreen .explore-view canvas,.explore-shell.is-immersive .explore-view canvas{width:100%;height:100%;min-height:0;object-fit:cover}
+.explore-shell:fullscreen .explore-controls,.explore-shell.is-immersive .explore-controls{min-height:58px;padding:6px 9px;flex:0 0 auto}
+
+/* Node Tactics: collapse instructions and keep the battlefield + command deck usable. */
+.card-shell.tactics-shell:fullscreen,.card-shell.tactics-shell.is-immersive{display:flex;flex-direction:column;background:#050a0e;overflow:hidden}
+.tactics-shell:fullscreen .tactics-topbar,.tactics-shell.is-immersive .tactics-topbar{height:56px;flex:0 0 56px}
+.tactics-shell:fullscreen .tactics-guide,.tactics-shell.is-immersive .tactics-guide{display:none}
+.tactics-shell:fullscreen .tactics-hud,.tactics-shell.is-immersive .tactics-hud{flex:0 0 auto}
+.tactics-shell:fullscreen .tactics-hud>div,.tactics-shell.is-immersive .tactics-hud>div{min-height:42px;padding:5px 8px;gap:2px}
+.tactics-shell:fullscreen .objective-strip,.tactics-shell.is-immersive .objective-strip{min-height:52px;padding:6px 10px;flex:0 0 auto}
+.tactics-shell:fullscreen .tactics-main,.tactics-shell.is-immersive .tactics-main{min-height:0;flex:1 1 auto}
+.tactics-shell:fullscreen .network-board,.tactics-shell.is-immersive .network-board{min-height:0;height:100%}
+.tactics-shell:fullscreen .tactics-command,.tactics-shell.is-immersive .tactics-command{flex:0 0 auto;padding:7px 9px 8px}
+.tactics-shell:fullscreen .command-head,.tactics-shell.is-immersive .command-head{min-height:22px}
+.tactics-shell:fullscreen .unit-roster>button,.tactics-shell.is-immersive .unit-roster>button{min-height:90px;grid-template-rows:36px 1fr auto;padding:4px}
+.tactics-shell:fullscreen .unit-art,.tactics-shell.is-immersive .unit-art{height:36px}
+.tactics-shell:fullscreen .tactics-footer,.tactics-shell.is-immersive .tactics-footer{min-height:42px;margin-top:5px}
+
+@media(max-width:820px){
+  .tactics-shell:fullscreen .tactics-side,.tactics-shell.is-immersive .tactics-side{display:none}
+  .tactics-shell:fullscreen .tactics-main,.tactics-shell.is-immersive .tactics-main{display:block}
+  .tactics-shell:fullscreen .network-board,.tactics-shell.is-immersive .network-board{height:100%;min-height:0}
+  .tactics-shell:fullscreen .unit-roster,.tactics-shell.is-immersive .unit-roster{display:flex;overflow-x:auto}
+  .tactics-shell:fullscreen .unit-roster>button,.tactics-shell.is-immersive .unit-roster>button{flex:0 0 108px;min-height:90px}
+}
+
+@media(max-width:600px){
+  .match-shell:fullscreen .match-controls,.match-shell.is-immersive .match-controls{flex-direction:row;align-items:center}
+  .match-shell:fullscreen .match-controls>div,.match-shell.is-immersive .match-controls>div{width:auto;flex:0 0 auto}
+  .defense-shell:fullscreen .defense-stats,.defense-shell.is-immersive .defense-stats{grid-template-columns:repeat(4,1fr)}
+  .defense-shell:fullscreen .defense-stats div,.defense-shell.is-immersive .defense-stats div{border-bottom:1px solid #3c3933}
+  .defense-shell:fullscreen .defense-stats div:nth-child(n+5),.defense-shell.is-immersive .defense-stats div:nth-child(n+5){border-bottom:0}
+  .defense-shell:fullscreen .defense-stats div:last-child,.defense-shell.is-immersive .defense-stats div:last-child{grid-column:auto}
+  .defense-shell:fullscreen .defense-shop,.defense-shell.is-immersive .defense-shop{grid-template-columns:repeat(4,1fr)}
+  .defense-shell:fullscreen .defense-shop em,.defense-shell.is-immersive .defense-shop em{display:none}
+  .idle-shell:fullscreen .idle-actions,.idle-shell.is-immersive .idle-actions{grid-template-columns:repeat(4,1fr)}
+  .idle-shell:fullscreen .idle-actions small,.idle-shell.is-immersive .idle-actions small{font-size:6px}
+  .explore-shell:fullscreen .explore-hud,.explore-shell.is-immersive .explore-hud{grid-template-columns:repeat(4,1fr)}
+  .explore-shell:fullscreen .explore-controls,.explore-shell.is-immersive .explore-controls{grid-template-columns:1fr auto}
+  .explore-shell:fullscreen .explore-controls p,.explore-shell:fullscreen .explore-controls>b,
+  .explore-shell.is-immersive .explore-controls p,.explore-shell.is-immersive .explore-controls>b{display:none}
+  .explore-shell:fullscreen .explore-pad button,.explore-shell.is-immersive .explore-pad button{width:44px;height:44px}
+  .tactics-shell:fullscreen .run-pips,.tactics-shell.is-immersive .run-pips{display:none}
+  .tactics-shell:fullscreen .objective-strip,.tactics-shell.is-immersive .objective-strip{grid-template-columns:36px 1fr}
+  .tactics-shell:fullscreen .build-strip,.tactics-shell.is-immersive .build-strip{display:none}
+  .tactics-shell:fullscreen .tactics-footer,.tactics-shell.is-immersive .tactics-footer{grid-template-columns:1fr auto}
+}
+
+/* Short landscape phones and short desktop windows need an extra compact pass. */
+@media(max-height:560px){
+  .match-shell:fullscreen .match-topbar,.match-shell.is-immersive .match-topbar,
+  .defense-shell:fullscreen .defense-topbar,.defense-shell.is-immersive .defense-topbar,
+  .idle-shell:fullscreen .idle-topbar,.idle-shell.is-immersive .idle-topbar,
+  .explore-shell:fullscreen .explore-topbar,.explore-shell.is-immersive .explore-topbar,
+  .tactics-shell:fullscreen .tactics-topbar,.tactics-shell.is-immersive .tactics-topbar{height:48px;flex-basis:48px}
+  .match-shell:fullscreen .match-controls p,.match-shell.is-immersive .match-controls p{display:none}
+  .match-shell:fullscreen .match-controls,.match-shell.is-immersive .match-controls{min-height:48px;justify-content:center}
+  .defense-shell:fullscreen .defense-stage,.defense-shell.is-immersive .defense-stage{min-height:160px}
+  .defense-shell:fullscreen .defense-shop button,.defense-shell.is-immersive .defense-shop button{min-height:52px}
+  .defense-shell:fullscreen .defense-message,.defense-shell.is-immersive .defense-message{min-height:30px}
+  .idle-shell:fullscreen .idle-world,.idle-shell.is-immersive .idle-world{min-height:160px}
+  .idle-shell:fullscreen .idle-actions button,.idle-shell.is-immersive .idle-actions button{min-height:52px}
+  .idle-shell:fullscreen .idle-collection,.idle-shell.is-immersive .idle-collection{display:none}
+  .idle-shell:fullscreen .idle-message,.idle-shell.is-immersive .idle-message{min-height:30px}
+  .idle-shell:fullscreen .idle-rig,.idle-shell.is-immersive .idle-rig{transform:scale(.68);transform-origin:left bottom;bottom:18px}
+  .idle-shell:fullscreen .idle-pet,.idle-shell.is-immersive .idle-pet{transform:translateX(-50%) scale(.72);transform-origin:center bottom;bottom:12px}
+  .idle-shell:fullscreen .mine-button,.idle-shell.is-immersive .mine-button{transform:scale(.72);transform-origin:right bottom;bottom:18px}
+  .explore-shell:fullscreen .explore-route,.explore-shell.is-immersive .explore-route{display:none}
+  .explore-shell:fullscreen .explore-controls,.explore-shell.is-immersive .explore-controls{min-height:52px}
+  .tactics-shell:fullscreen .objective-strip,.tactics-shell.is-immersive .objective-strip{display:none}
+  .tactics-shell:fullscreen .tactics-hud>div,.tactics-shell.is-immersive .tactics-hud>div{min-height:34px;padding:3px 6px}
+  .tactics-shell:fullscreen .command-head,.tactics-shell.is-immersive .command-head{display:none}
+  .tactics-shell:fullscreen .unit-roster>button,.tactics-shell.is-immersive .unit-roster>button{min-height:72px;grid-template-rows:28px 1fr auto}
+  .tactics-shell:fullscreen .unit-art,.tactics-shell.is-immersive .unit-art{height:28px}
+  .tactics-shell:fullscreen .tactics-footer,.tactics-shell.is-immersive .tactics-footer{min-height:38px;margin-top:3px}
+}
