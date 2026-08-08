@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useArcadeFullscreen } from "../../platform/useArcadeFullscreen";
 
 type GameState = {
   hash: number;
@@ -62,7 +63,7 @@ const growthStage = (level: number) => {
 };
 
 export default function IdlePetMiningGame() {
-  const shellRef = useRef<HTMLDivElement>(null);
+  const { shellRef, immersive, toggleFullscreen } = useArcadeFullscreen<HTMLDivElement>();
   const musicRef = useRef<HTMLAudioElement>(null);
   const [game, setGame] = useState<GameState>(initialState);
   const [hydrated, setHydrated] = useState(false);
@@ -257,12 +258,6 @@ export default function IdlePetMiningGame() {
     });
   };
 
-  const toggleFullscreen = async () => {
-    if (!shellRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await shellRef.current.requestFullscreen();
-  };
-
   const level = petLevel(game.petXp);
   const rate = rigRate(game.rigLevel);
   const nextXp = level * 60;
@@ -273,7 +268,7 @@ export default function IdlePetMiningGame() {
   const reaction = PET_REACTIONS[moodReaction];
 
   return (
-    <div className="idle-shell" ref={shellRef} id="idle-pet-mining" onPointerDown={playMusic}>
+    <div className={`idle-shell${immersive ? " is-immersive" : ""}`} ref={shellRef} id="idle-pet-mining" onPointerDown={playMusic}>
       <audio ref={musicRef} src="/idle-pet/Where_the_Crystals_Grow.mp3" loop preload="auto" />
       <div className="idle-topbar">
         <div><small>PEPEPOW ARCADE / GAME 04</small><strong>IDLE PET &amp; MINING</strong></div>

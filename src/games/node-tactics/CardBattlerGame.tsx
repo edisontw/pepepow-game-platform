@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useArcadeFullscreen } from "../../platform/useArcadeFullscreen";
 
 type Side = "player" | "enemy";
 type Owner = Side | "neutral" | "corrupt";
@@ -196,7 +197,7 @@ function createBoard(stage: number, brain: EnemyBrain, mode: Difficulty) {
 }
 
 export default function CardBattlerGame() {
-  const gameRef = useRef<HTMLDivElement>(null);
+  const { shellRef: gameRef, immersive, toggleFullscreen } = useArcadeFullscreen<HTMLDivElement>();
   const musicRef = useRef<HTMLAudioElement>(null);
   const [status, setStatus] = useState<Status>("ready");
   const [musicOn, setMusicOn] = useState(true);
@@ -732,12 +733,6 @@ export default function CardBattlerGame() {
     setMessage(`${OBJECTIVES[current.objective].name}: ${OBJECTIVES[current.objective].text}`);
   };
 
-  const toggleFullscreen = async () => {
-    if (!gameRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await gameRef.current.requestFullscreen();
-  };
-
   const selectedDef = selectedUnit ? UNIT_DEFS[selectedUnit.kind] : null;
   const selectedSpent = Boolean(selectedUnit && activatedUnitIds.includes(selectedUnit.id));
   const nodeAction = (id: string) => {
@@ -753,7 +748,7 @@ export default function CardBattlerGame() {
   const emptyBlueSelected = Boolean(selectedNode && board[selectedNode]?.owner === "player" && !board[selectedNode]?.unit);
 
   return (
-    <div className="card-shell tactics-shell" ref={gameRef} id="card-battler" onPointerDown={playMusic}>
+    <div className={`card-shell tactics-shell${immersive ? " is-immersive" : ""}`} ref={gameRef} id="card-battler" onPointerDown={playMusic}>
       <audio ref={musicRef} src="/node-tactics/Point_to_Point.mp3" loop preload="auto" />
       <div className="card-topbar tactics-topbar">
         <div><small>PEPEPOW ARCADE / GAME 06 · TACTICAL ROGUELITE</small><strong>NODE TACTICS</strong><em>Build the network. Break the enemy chain.</em></div>
