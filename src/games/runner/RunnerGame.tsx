@@ -38,7 +38,7 @@ export default function RunnerGame() {
     syncViewportHeight();
     if (shell.requestFullscreen) {
       try {
-        await shell.requestFullscreen({ navigationUI: "hide" });
+        await shell.requestFullscreen();
         return;
       } catch {
         // iOS and some embedded browsers only support fullscreen for media.
@@ -71,12 +71,14 @@ export default function RunnerGame() {
     window.addEventListener("orientationchange", syncViewportHeight);
     window.addEventListener("message", onMessage);
     window.visualViewport?.addEventListener("resize", syncViewportHeight);
+    window.visualViewport?.addEventListener("scroll", syncViewportHeight);
     return () => {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       window.removeEventListener("resize", syncViewportHeight);
       window.removeEventListener("orientationchange", syncViewportHeight);
       window.removeEventListener("message", onMessage);
       window.visualViewport?.removeEventListener("resize", syncViewportHeight);
+      window.visualViewport?.removeEventListener("scroll", syncViewportHeight);
       document.documentElement.classList.remove("runner-immersive-active");
     };
   }, [enterFullscreen, leaveFullscreen, postFullscreenState, syncViewportHeight, toggleFullscreen]);
@@ -97,7 +99,7 @@ export default function RunnerGame() {
       <div className="runner-embed">
       <iframe
         src="/games/runner/index.html"
-        title="PEPEPOW Auto-Shooting Runner v0.12"
+        title="PEPEPOW Auto-Shooting Runner v0.13"
         allow="autoplay; fullscreen"
         allowFullScreen
       />
