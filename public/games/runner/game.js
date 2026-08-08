@@ -51,9 +51,10 @@
     { name: "CORE OVERDRIVE", tint: "#ffd85d", spawnBoost: 85, hpBoost: 0.08, shotBoost: 135, swarm: 0.11 },
   ];
 
-  const keys = { left: false, right: false };
+  const keys = { left: false, right: false, up: false, down: false };
   let dragging = false;
   let pointerX = W / 2;
+  let pointerY = H - 65;
   let raf = 0;
   let g = null;
   let best = Number(localStorage.getItem("pepepow-runner-high") || 0);
@@ -519,13 +520,13 @@
       ctx.lineWidth = 3;
       ctx.globalAlpha = 0.5 + 0.28 * Math.sin(now / 90);
       ctx.beginPath();
-      ctx.arc(g.playerX, H - 65, 32 + Math.min(1, g.shield - 1) * 4, 0, Math.PI * 2);
+      ctx.arc(g.playerX, g.playerY, 32 + Math.min(1, g.shield - 1) * 4, 0, Math.PI * 2);
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
     if (!(g.invincible > 0 && Math.floor(now / 80) % 2 === 0)) {
       ctx.save();
-      ctx.translate(g.playerX, H - 65);
+      ctx.translate(g.playerX, g.playerY);
       ctx.shadowColor = "#baff00";
       ctx.shadowBlur = 12;
       if (spriteReady(sprites.player)) {
@@ -613,14 +614,14 @@
       const width = level >= 5 ? 0.58 : 0.46;
       for (let i = 0; i < count; i += 1) {
         const vx = count === 1 ? 0 : -width / 2 + (width * i) / (count - 1);
-        g.bullets.push({ x: g.playerX, y: H - 94, vx, vy: -0.7, pierce: 0 });
+        g.bullets.push({ x: g.playerX, y: g.playerY - 29, vx, vy: -0.7, pierce: 0 });
       }
     } else if (g.weapon === "rapid") {
       const count = level >= 7 ? 3 : level >= 4 ? 2 : 1;
       for (let i = 0; i < count; i += 1) {
         g.bullets.push({
           x: g.playerX + (i - (count - 1) / 2) * 12,
-          y: H - 94,
+          y: g.playerY - 29,
           vx: count === 3 ? (i - 1) * 0.035 : 0,
           vy: -0.8,
           pierce: 0,
@@ -631,7 +632,7 @@
       for (let i = 0; i < count; i += 1) {
         g.bullets.push({
           x: g.playerX + (i - (count - 1) / 2) * 13,
-          y: H - 94,
+          y: g.playerY - 29,
           vx: 0,
           vy: -0.74,
           pierce: level >= 6 ? 1 : 0,
@@ -649,6 +650,7 @@
     cancelAnimationFrame(raf);
     g = {
       playerX: W / 2,
+      playerY: H - 65,
       bullets: [],
       enemyBullets: [],
       enemies: [],
@@ -706,6 +708,8 @@
     g.lastBossShot = 0;
     g.spawnTimer = 0;
     g.invincible = first ? 550 : 900;
+    g.playerX = W / 2;
+    g.playerY = H - 65;
     ui.summary.classList.add("hidden");
     ui.summary.innerHTML = "";
     ui.overlay.classList.add("hidden");
@@ -737,7 +741,7 @@
     }
     p.y = H + 99;
     award(50);
-    burst(g.playerX, H - 65, colors[p.kind], 14, true);
+    burst(g.playerX, g.playerY, colors[p.kind], 14, true);
     sound("pickup");
     updateHud();
   }
@@ -787,8 +791,15 @@
     g.flash = Math.max(0, g.flash - dt);
     if (keys.left) g.playerX -= dt * 0.38;
     if (keys.right) g.playerX += dt * 0.38;
-    if (dragging) g.playerX += (pointerX - g.playerX) * Math.min(1, dt * 0.018);
+    if (keys.up) g.playerY -= dt * 0.34;
+    if (keys.down) g.playerY += dt * 0.34;
+    if (dragging) {
+      const follow = Math.min(1, dt * 0.018);
+      g.playerX += (pointerX - g.playerX) * follow;
+      g.playerY += (pointerY - g.playerY) * follow;
+    }
     g.playerX = Math.max(28, Math.min(W - 28, g.playerX));
+    g.playerY = Math.max(H * 0.48, Math.min(H - 42, g.playerY));
     if (g.invincible > 0) g.invincible -= dt;
 
     firePlayer(now);
@@ -942,7 +953,7 @@
     g.bullets = g.bullets.filter((b) => !b.dead && b.y > -30);
     g.enemies = g.enemies.filter((e) => e.hp > 0 && e.y < H + 80);
 
-    const hit = (x, y, r) => Math.hypot(g.playerX - x, H - 65 - y) < r + 18;
+    const hit = (x, y, r) => Math.hypot(g.playerX - x, g.playerY - y) < r + 18;
     if (g.invincible <= 0) {
       let wasHit = false;
       for (const e of g.enemies) {
@@ -964,11 +975,11 @@
       if (wasHit) {
         if (g.shield) {
           g.shield -= 1;
-          burst(g.playerX, H - 65, "#a88bff", 18, true);
+          burst(g.playerX, g.playerY, "#a88bff", 18, true);
         } else {
           g.hp -= 1;
           const destroyed = g.hp <= 0;
-          burst(g.playerX, H - 65, destroyed ? "#ffd85d" : "#ff6578", destroyed ? 44 : 18, true);
+          burst(g.playerX, g.playerY, destroyed ? "#ffd85d" : "#ff6578", destroyed ? 44 : 18, true);
           sound(destroyed ? "playerExplosion" : "hurt");
         }
         g.shake = g.hp <= 0 ? 13 : 8;
@@ -1002,6 +1013,7 @@
   function pointer(e) {
     const rect = canvas.getBoundingClientRect();
     pointerX = ((e.clientX - rect.left) / rect.width) * W;
+    pointerY = ((e.clientY - rect.top) / rect.height) * H;
   }
 
   canvas.addEventListener("pointerdown", (e) => {
@@ -1021,10 +1033,15 @@
   addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = true;
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = true;
+    if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") keys.up = true;
+    if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") keys.down = true;
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) e.preventDefault();
   });
   addEventListener("keyup", (e) => {
     if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = false;
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = false;
+    if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") keys.up = false;
+    if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") keys.down = false;
   });
   ui.start.addEventListener("click", () => {
     if (g?.stageCleared && g.hp > 0) nextStage();
@@ -1058,6 +1075,7 @@
 
   g = {
     playerX: W / 2,
+    playerY: H - 65,
     bullets: [],
     enemyBullets: [],
     enemies: [],
