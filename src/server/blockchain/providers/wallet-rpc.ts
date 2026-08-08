@@ -1,3 +1,5 @@
+import "server-only";
+
 type RpcResponse<T> = {
   result: T | null;
   error: { code: number; message: string } | null;

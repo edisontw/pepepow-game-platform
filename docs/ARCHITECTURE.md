@@ -16,6 +16,18 @@ Do not split this into microservices until there is a concrete scaling or owners
 | `src/server/db/` | persistence interfaces and adapters | game rendering |
 | `src/server/blockchain/` | PEPEPOW provider selection and normalization | private keys in browser code |
 
+## Shared platform contracts
+
+Cross-game capabilities live under `src/shared/` with separate `audio`, `ui`, `input`, `storage`, `api`, `wallet`, and `rewards` boundaries. The current API/wallet/reward implementations are deliberately safe mocks:
+
+- `GameAPI.getPlayer()` returns a local anonymous identity.
+- `GameAPI.submitScore()` rejects client scores as `untrusted-client` until an authoritative server verifier exists.
+- `GameAPI.getLeaderboard()` returns no trusted entries.
+- `WalletAPI.getAddress()` / `getBalance()` expose no real wallet.
+- `RewardAPI.claim()` never creates a real reward.
+
+Games must not call PEPEPOW RPC directly. Future browser chain reads should go through platform API routes backed by the ElectrumX-based Light API. Wallet RPC, if ever enabled for controlled payouts, remains server-only.
+
 ## Adding a game
 
 Create `src/games/<slug>/`, keep game-specific state inside it, and add its metadata to `src/platform/games.ts`. A game should remain playable when the database and PEPEPOW provider are unavailable unless the mode explicitly requires them.

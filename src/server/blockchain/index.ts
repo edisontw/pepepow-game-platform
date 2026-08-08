@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { ChainProvider } from "./types";
 import { LightApiProvider } from "./providers/light-api";
 
