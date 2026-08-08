@@ -20,7 +20,7 @@ export default function RunnerGame() {
       <div className="runner-embed">
       <iframe
         src="/games/runner/index.html"
-        title="PEPEPOW Auto-Shooting Runner v0.9"
+        title="PEPEPOW Auto-Shooting Runner v0.11"
         allow="autoplay; fullscreen"
         allowFullScreen
       />
