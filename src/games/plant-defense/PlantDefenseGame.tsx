@@ -1,11 +1,37 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  BASE_ENERGY_CAP,
+  COLS,
+  FROG_FIRE_TICKS,
+  getArmorScale,
+  getEnemyAttack,
+  getEnemyKind,
+  getEnemyMaxHp,
+  getEnemyRow,
+  getEnemySpeed,
+  getEnergyCap,
+  getMinerIncome,
+  getProjectileDamage,
+  getSpawnEvery,
+  getStage,
+  getStageWave,
+  getWaveTarget,
+  getWaveTrait,
+  isBossWave,
+  killBounty,
+  killScore,
+  levelScale,
+  MINER_INCOME_TICKS,
+  PROJECTILE_STEP,
+  ROWS,
+  STARTING_ENERGY,
+  unitInfo,
+  unitInvestedCost,
+  upgradeCost,
+} from "./balance-model.mjs";
 
-const ROWS = 5;
-const COLS = 7;
-const STARTING_ENERGY = 1000;
-const BASE_ENERGY_CAP = 1000;
 type UnitType = "miner" | "frog" | "wall";
 type BuildChoice = UnitType | "recycle";
 type Unit = { id: number; row: number; col: number; type: UnitType; hp: number; maxHp: number; level: number };
@@ -32,53 +58,6 @@ type GameState = {
   nextId: number;
   message: string;
 };
-
-const unitInfo: Record<UnitType, { name: string; cost: number; hp: number; icon: string; description: string }> = {
-  miner: { name: "HASH MINER", cost: 65, hp: 95, icon: "⛏", description: "+14 / 8s · soft cap after 4" },
-  frog: { name: "POW FROG", cost: 100, hp: 120, icon: "🐸", description: "Auto-fire lane · Lv.3" },
-  wall: { name: "CRYSTAL WALL", cost: 75, hp: 360, icon: "◆", description: "High HP barrier · Lv.3" },
-};
-
-const isBossWave = (wave: number) => wave % 5 === 0;
-const getStage = (wave: number) => Math.floor((wave - 1) / 5) + 1;
-const getStageWave = (wave: number) => ((wave - 1) % 5) + 1;
-const getWaveTrait = (wave: number) => {
-  if (isBossWave(wave)) return { name: "BOSS", detail: "Node Breaker · mining output -30% while active", hp: 1, speed: 1, extra: 0, spawn: 1, miner: 0.7 };
-  if (wave === 1) return { name: "OPENING RAID", detail: "6 raiders · center 3 lanes only", hp: 1, speed: 1, extra: 0, spawn: 1, miner: 1 };
-  if (wave === 2) return { name: "STANDARD", detail: "All lanes active · standard raiders", hp: 1, speed: 1, extra: 0, spawn: 1, miner: 1 };
-  const traits = [
-    { name: "OVERCLOCK", detail: "Enemy movement speed +18%", hp: 1, speed: 1.18, extra: 0, spawn: 1, miner: 1 },
-    { name: "ARMORED", detail: "Enemy armor +22%", hp: 1.22, speed: 1, extra: 0, spawn: 1, miner: 1 },
-    { name: "SWARM", detail: "+4 raiders · two-lane rush", hp: 0.94, speed: 1.06, extra: 4, spawn: 0.78, miner: 1 },
-    { name: "BLACKOUT", detail: "Network interference · Hash Miner output -45%", hp: 1.06, speed: 1.04, extra: 1, spawn: 0.94, miner: 0.55 },
-  ];
-  return traits[(wave - 3) % traits.length];
-};
-const getWaveTarget = (wave: number) => {
-  if (isBossWave(wave)) return 1;
-  if (wave === 1) return 6;
-  if (wave === 2) return 8;
-  const sector = Math.floor((wave - 1) / 5);
-  const step = (wave - 1) % 5;
-  return 8 + step * 2 + sector * 4 + (step >= 3 ? sector : 0) + getWaveTrait(wave).extra;
-};
-const upgradeCost = (type: UnitType, level: number) => Math.ceil(unitInfo[type].cost * (0.65 + level * 0.25));
-const levelScale = (level: number) => 1 + (level - 1) * 0.55;
-const getEnergyCap = (wave: number) => BASE_ENERGY_CAP + (getStage(wave) - 1) * 100;
-const getMinerIncome = (units: Unit[], wave: number) => {
-  const miners = units.filter(unit => unit.type === "miner");
-  if (!miners.length) return 0;
-  const rawYield = miners.reduce((sum, unit) => sum + 14 + (unit.level - 1) * 7, 0);
-  const saturation = Math.max(0.42, 1 - Math.max(0, miners.length - 4) * 0.1);
-  const miningDifficulty = Math.max(0.72, 1 - (getStage(wave) - 1) * 0.02);
-  return Math.max(1, Math.round(rawYield * saturation * miningDifficulty * getWaveTrait(wave).miner));
-};
-const unitInvestedCost = (unit: Unit) => {
-  let total = unitInfo[unit.type].cost;
-  for (let level = 1; level < unit.level; level += 1) total += upgradeCost(unit.type, level);
-  return total;
-};
-const killBounty = (enemy: Enemy) => enemy.kind === "boss" ? 100 : enemy.kind === "shield" ? 12 : enemy.kind === "brute" ? 10 : enemy.kind === "crusher" ? 9 : enemy.kind === "glitch" ? 7 : 6;
 
 const initialState = (): GameState => ({
   status: "ready", energy: STARTING_ENERGY, score: 0, kills: 0, stageStartScore: 0, stageStartKills: 0,
@@ -245,57 +224,34 @@ export default function PlantDefenseGame() {
 
         const target = getWaveTarget(previous.wave);
         const bossWave = isBossWave(previous.wave);
-        const sector = Math.floor((previous.wave - 1) / 5);
-        const step = (previous.wave - 1) % 5;
         const stage = getStage(previous.wave);
-        const trait = getWaveTrait(previous.wave);
 
         // Hash Miners remain useful, but stacking them has diminishing returns.
         // Mining difficulty also rises gradually with each cleared stage, while
         // BLACKOUT/BOSS waves temporarily reduce production further.
-        if (next.tick % 32 === 0) {
+        if (next.tick % MINER_INCOME_TICKS === 0) {
           if (units.some(unit => unit.type === "miner")) {
             const mined = getMinerIncome(units, previous.wave);
             energy = Math.min(getEnergyCap(previous.wave), energy + mined);
           }
         }
 
-        const spawnEvery = bossWave
-          ? 1
-          : previous.wave === 1
-            ? 16
-            : previous.wave === 2
-              ? 14
-              : Math.max(5, Math.round((13 - step * 2 - Math.min(sector, 4)) * trait.spawn));
+        const spawnEvery = getSpawnEvery(previous.wave);
         if (spawned < target && next.tick >= 8 && next.tick % spawnEvery === 0) {
-          let kind: EnemyKind = "drone";
-          if (bossWave) kind = "boss";
-          else if (stage >= 2 && spawned % 7 === 4) kind = "crusher";
-          else if (getStageWave(previous.wave) >= 4 && spawned % 6 === 1) kind = "shield";
-          else if (previous.wave >= 3 && spawned % 5 === 2) kind = "glitch";
-          else if (previous.wave >= 2 && spawned % 4 === 3) kind = "brute";
-          const rawHp = kind === "boss" ? 2050 + sector * 1100 : kind === "shield" ? 265 + previous.wave * 42 : kind === "brute" ? 220 + previous.wave * 40 : kind === "crusher" ? 115 + previous.wave * 27 : kind === "glitch" ? 72 + previous.wave * 21 : 90 + previous.wave * 32;
-          const stagePressure = 1 + sector * 0.11;
-          const maxHp = Math.round(rawHp * trait.hp * stagePressure);
-          const swarmLane = (previous.wave + sector) % (ROWS - 1);
-          const row = bossWave
-            ? 2
-            : previous.wave === 1
-              ? 1 + ((spawned * 2) % 3)
-              : trait.name === "SWARM"
-                ? swarmLane + (spawned % 2)
-                : (spawned * 3 + previous.wave + sector) % ROWS;
+          const kind = getEnemyKind(previous.wave, spawned) as EnemyKind;
+          const maxHp = getEnemyMaxHp(previous.wave, kind);
+          const row = getEnemyRow(previous.wave, spawned);
           enemies.push({ id: nextId++, row, x: 6.72, hp: maxHp, maxHp, kind });
           spawned += 1;
-          if (bossWave) message = `NODE BREAKER MK.${sector + 1} ONLINE — destroy it to secure this sector.`;
+          if (bossWave) message = `NODE BREAKER MK.${stage} ONLINE — destroy it to secure this sector.`;
         }
 
         // POW Frogs launch visible projectiles once per second. Damage is applied only on impact.
-        if (next.tick % 4 === 0) {
+        if (next.tick % FROG_FIRE_TICKS === 0) {
           for (const frog of units.filter(unit => unit.type === "frog")) {
             const targets = enemies.filter(enemy => enemy.row === frog.row && enemy.x > frog.col - 0.2).sort((a, b) => a.x - b.x);
             if (targets[0]) {
-              const damage = 42 * levelScale(frog.level);
+              const damage = getProjectileDamage(frog.level);
               projectiles.push({
                 id: nextId++,
                 row: frog.row,
@@ -310,12 +266,12 @@ export default function PlantDefenseGame() {
         const flying: Projectile[] = [];
         for (const projectile of projectiles) {
           const oldX = projectile.x;
-          const newX = oldX + 0.72;
+          const newX = oldX + PROJECTILE_STEP;
           const hitEnemy = enemies
             .filter(enemy => enemy.hp > 0 && enemy.row === projectile.row && enemy.x >= oldX - 0.18 && enemy.x <= newX + 0.28)
             .sort((a, b) => a.x - b.x)[0];
           if (hitEnemy) {
-            const armorScale = hitEnemy.kind === "boss" ? 0.76 : hitEnemy.kind === "shield" ? 0.58 : hitEnemy.kind === "brute" ? 0.9 : 1;
+            const armorScale = getArmorScale(hitEnemy.kind);
             const impactDamage = projectile.damage * armorScale;
             hitEnemy.hp -= impactDamage;
             hits.push({ id: nextId++, row: projectile.row, x: hitEnemy.x, damage: impactDamage, ttl: 3 });
@@ -333,20 +289,17 @@ export default function PlantDefenseGame() {
             .sort((a, b) => b.col - a.col)
             .find(unit => Math.abs(enemy.x - unit.col) < 0.52);
           if (blocker) {
-            const baseAttack = enemy.kind === "boss" ? 34 + sector * 3 : enemy.kind === "brute" ? 23 : enemy.kind === "shield" ? 16 : enemy.kind === "crusher" ? (blocker.type === "wall" ? 32 : 19) : enemy.kind === "glitch" ? 12 : 15;
-            blocker.hp -= baseAttack * (1 + sector * 0.12);
+            blocker.hp -= getEnemyAttack(previous.wave, enemy.kind, blocker.type);
           } else {
-            const baseSpeed = Math.min(0.09, (0.038 + step * 0.0068 + sector * 0.0045) * trait.speed);
-            const speed = enemy.kind === "boss" ? 0.021 + sector * 0.0025 : enemy.kind === "shield" ? baseSpeed * 0.63 : enemy.kind === "brute" ? baseSpeed * 0.72 : enemy.kind === "crusher" ? baseSpeed * 1.12 : enemy.kind === "glitch" ? baseSpeed * 1.45 : baseSpeed;
-            enemy.x -= speed;
+            enemy.x -= getEnemySpeed(previous.wave, enemy.kind);
           }
         }
 
         const killed = enemies.filter(enemy => enemy.hp <= 0);
         if (killed.length) {
           kills += killed.length;
-          score += killed.reduce((sum, enemy) => sum + (enemy.kind === "boss" ? 3500 : enemy.kind === "shield" ? 320 : enemy.kind === "brute" ? 280 : enemy.kind === "crusher" ? 220 : enemy.kind === "glitch" ? 170 : 130), 0);
-          const bounty = killed.reduce((sum, enemy) => sum + killBounty(enemy), 0) + killed.filter(enemy => enemy.kind === "boss").length * stage * 20;
+          score += killed.reduce((sum, enemy) => sum + killScore(enemy.kind), 0);
+          const bounty = killed.reduce((sum, enemy) => sum + killBounty(enemy.kind), 0) + killed.filter(enemy => enemy.kind === "boss").length * stage * 20;
           energy = Math.min(getEnergyCap(previous.wave), energy + bounty);
         }
         enemies = enemies.filter(enemy => enemy.hp > 0);

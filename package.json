@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "simulate:plant-defense": "node scripts/simulate-plant-defense.mjs"
   },
   "dependencies": {
     "next": "16.2.6",
